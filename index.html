@@ -1,0 +1,1016 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fff9ed">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💭</text></svg>">
+  <title>마음 초성 탐험대</title>
+  <style>
+    :root {
+      --ink: #3f3a35;
+      --muted: #766e67;
+      --paper: rgba(255, 252, 244, .9);
+      --line: #ded4c5;
+      --coral: #e97963;
+      --coral-dark: #c95143;
+      --mint: #88bca7;
+      --sky: #91b9d6;
+      --yellow: #f4c96b;
+      --pink: #eaa6ad;
+      --shadow: 0 22px 60px rgba(104, 78, 54, .12);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      min-height: 100svh;
+      overflow-x: hidden;
+      color: var(--ink);
+      background: #fff9ed;
+      font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      word-break: keep-all;
+    }
+
+    button, input { font: inherit; }
+    button { -webkit-tap-highlight-color: transparent; }
+    button:focus-visible, input:focus-visible { outline: 4px solid rgba(62, 128, 171, .26); outline-offset: 3px; }
+
+    #game-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .app {
+      width: min(1060px, calc(100% - 40px));
+      min-height: 100svh;
+      margin: 0 auto;
+      padding: 26px 0;
+      display: grid;
+      align-items: center;
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; animation: screen-in .55s cubic-bezier(.2,.8,.2,1) both; }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--ink);
+      font-weight: 900;
+      letter-spacing: -.04em;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 46% 54% 50% 50%;
+      background: var(--coral);
+      color: white;
+      transform: rotate(-5deg);
+      box-shadow: inset 0 -4px 0 rgba(129, 53, 39, .11);
+    }
+
+    .icon-btn {
+      width: 44px;
+      height: 44px;
+      border: 1px solid rgba(104, 90, 75, .16);
+      border-radius: 50%;
+      background: rgba(255, 252, 244, .76);
+      color: var(--ink);
+      cursor: pointer;
+      transition: transform .18s ease, background .18s ease;
+    }
+    .icon-btn:hover { transform: translateY(-2px); background: white; }
+
+    .start-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(300px, .85fr);
+      align-items: center;
+      gap: clamp(34px, 7vw, 90px);
+    }
+
+    .eyebrow {
+      margin: 0 0 14px;
+      color: var(--coral-dark);
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: .13em;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 650px;
+      font-size: clamp(52px, 8vw, 92px);
+      line-height: .97;
+      letter-spacing: -.08em;
+      font-weight: 950;
+    }
+    h1 span { display: block; color: var(--coral); }
+
+    .intro-copy {
+      max-width: 520px;
+      margin: 24px 0 32px;
+      color: var(--muted);
+      font-size: clamp(17px, 2vw, 20px);
+      line-height: 1.7;
+    }
+
+    .round-select {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .round-select span { margin-right: 6px; font-size: 14px; font-weight: 800; color: var(--muted); }
+    .round-btn {
+      min-width: 62px;
+      height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255,255,255,.55);
+      color: var(--muted);
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .round-btn.selected { border-color: var(--ink); background: var(--ink); color: white; }
+
+    .primary-btn {
+      min-height: 58px;
+      padding: 0 28px;
+      border: 0;
+      border-radius: 18px;
+      background: var(--coral);
+      color: white;
+      font-weight: 900;
+      font-size: 18px;
+      cursor: pointer;
+      box-shadow: 0 9px 0 #c95c4c, 0 18px 26px rgba(158, 67, 52, .18);
+      transition: transform .16s ease, box-shadow .16s ease;
+    }
+    .primary-btn:hover { transform: translateY(-2px); box-shadow: 0 11px 0 #c95c4c, 0 21px 30px rgba(158, 67, 52, .2); }
+    .primary-btn:active { transform: translateY(6px); box-shadow: 0 3px 0 #c95c4c; }
+
+    .how-it-works {
+      position: relative;
+      padding: 34px 30px 30px;
+      border: 1px solid rgba(101, 83, 63, .12);
+      border-radius: 42px 42px 42px 14px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      transform: rotate(1.2deg);
+    }
+    .how-it-works::before {
+      content: "?";
+      position: absolute;
+      right: 28px;
+      top: -28px;
+      display: grid;
+      place-items: center;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--yellow);
+      color: white;
+      font-size: 38px;
+      font-weight: 950;
+      transform: rotate(8deg);
+      box-shadow: 0 9px 0 rgba(174, 133, 46, .17);
+    }
+    .how-it-works h2 { margin: 0 0 24px; font-size: 20px; letter-spacing: -.04em; }
+    .hint-step { display: grid; grid-template-columns: 46px 1fr; gap: 14px; align-items: start; }
+    .hint-step + .hint-step { margin-top: 21px; }
+    .step-number {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border: 2px solid currentColor;
+      border-radius: 50%;
+      font-size: 14px;
+      font-weight: 950;
+    }
+    .hint-step:nth-of-type(1) { color: #d45e52; }
+    .hint-step:nth-of-type(2) { color: #548da3; }
+    .hint-step:nth-of-type(3) { color: #638d6f; }
+    .hint-step strong { display: block; margin: 1px 0 4px; font-size: 16px; }
+    .hint-step p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+    .micro-help { margin: 20px 0 0; color: var(--muted); font-size: 12px; }
+
+    .game-shell, .result-shell {
+      overflow: hidden;
+      border: 1px solid rgba(101, 83, 63, .12);
+      border-radius: 36px;
+      background: rgba(255, 252, 244, .91);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .game-head {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 20px;
+      padding: 22px 28px;
+      border-bottom: 1px solid rgba(101, 83, 63, .1);
+    }
+    .progress-label { font-size: 15px; color: var(--muted); }
+    .progress-label strong { color: var(--ink); font-size: 18px; }
+    .score { justify-self: end; text-align: right; color: var(--muted); font-size: 13px; }
+    .score strong { display: block; color: var(--coral-dark); font-size: 24px; line-height: 1; }
+
+    .timer {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 74px;
+      height: 74px;
+    }
+    .timer svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+    .timer circle { fill: none; stroke-width: 7; }
+    .timer .track { stroke: #eee4d5; }
+    .timer .fill { stroke: var(--coral); stroke-linecap: round; transition: stroke .2s ease; }
+    .timer strong { font-size: 23px; letter-spacing: -.04em; }
+    .timer small { position: absolute; top: 49px; color: var(--muted); font-size: 9px; font-weight: 800; }
+
+    .game-body { padding: clamp(24px, 4vw, 48px); }
+    .consonant-zone { text-align: center; }
+    .question-kicker { margin: 0 0 9px; color: var(--muted); font-weight: 800; font-size: 14px; }
+    .consonants {
+      min-height: 122px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: clamp(8px, 1.8vw, 16px);
+      color: var(--ink);
+      font-size: clamp(52px, 8.5vw, 86px);
+      font-weight: 950;
+      line-height: 1;
+      letter-spacing: .02em;
+    }
+    .consonants span {
+      display: grid;
+      place-items: center;
+      min-width: 1.25em;
+      aspect-ratio: 1;
+      padding: .09em;
+      border: 3px solid rgba(66, 58, 50, .12);
+      border-radius: 31% 42% 35% 45%;
+      background: rgba(255,255,255,.52);
+      box-shadow: inset 0 -8px 0 rgba(92, 74, 58, .04);
+      animation: tile-pop .4s cubic-bezier(.2,.9,.2,1.25) backwards;
+    }
+    .consonants span:nth-child(2) { transform: rotate(2deg); animation-delay: .07s; }
+    .consonants span:nth-child(3) { transform: rotate(-2deg); animation-delay: .14s; }
+    .consonants .space { min-width: .12em; border: 0; background: none; box-shadow: none; }
+
+    .hint-track {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 20px 0 18px;
+    }
+    .hint-track::before {
+      content: "";
+      position: absolute;
+      left: 6%; right: 6%; top: 12px;
+      height: 3px;
+      background: #e7ddcf;
+      z-index: 0;
+    }
+    .track-item { position: relative; z-index: 1; text-align: center; color: #9a9187; font-size: 12px; font-weight: 800; }
+    .track-dot {
+      display: block;
+      width: 25px;
+      height: 25px;
+      margin: 0 auto 6px;
+      border: 5px solid #fffaf0;
+      border-radius: 50%;
+      background: #d9cfc2;
+      box-shadow: 0 0 0 1px rgba(101,83,63,.1);
+      transition: transform .25s ease, background .25s ease;
+    }
+    .track-item.on { color: var(--ink); }
+    .track-item.on .track-dot { background: var(--coral); transform: scale(1.14); }
+
+    .hints { display: grid; gap: 10px; min-height: 142px; }
+    .hint-line {
+      display: grid;
+      grid-template-columns: 86px 1fr;
+      align-items: center;
+      gap: 14px;
+      min-height: 64px;
+      padding: 13px 18px;
+      border-top: 1px solid rgba(101,83,63,.12);
+      opacity: .28;
+      filter: blur(2px);
+      transform: translateY(5px);
+      transition: opacity .35s ease, filter .35s ease, transform .35s ease;
+    }
+    .hint-line.visible { opacity: 1; filter: none; transform: translateY(0); animation: hint-in .42s ease both; }
+    .hint-label { color: var(--muted); font-size: 13px; font-weight: 900; }
+    .hint-text { font-size: clamp(16px, 2.2vw, 20px); font-weight: 750; line-height: 1.5; }
+    .locked-copy { color: #aaa198; font-size: 14px; font-weight: 600; }
+
+    .answer-form {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .answer-input {
+      min-width: 0;
+      height: 62px;
+      padding: 0 20px;
+      border: 2px solid #d9cfc2;
+      border-radius: 18px;
+      background: rgba(255,255,255,.72);
+      color: var(--ink);
+      font-size: 19px;
+      font-weight: 800;
+      transition: border .2s ease, box-shadow .2s ease;
+    }
+    .answer-input::placeholder { color: #aaa198; font-weight: 600; }
+    .answer-input:focus { border-color: var(--sky); box-shadow: 0 0 0 5px rgba(145,185,214,.16); outline: none; }
+    .answer-input.shake { animation: shake .34s ease; border-color: var(--pink); }
+    .submit-btn { min-width: 122px; box-shadow: 0 7px 0 #c95c4c; }
+    .submit-btn:active { box-shadow: 0 2px 0 #c95c4c; }
+    .answer-note { margin: 12px 2px 0; min-height: 22px; color: var(--muted); font-size: 13px; }
+
+    .feedback {
+      display: none;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 16px;
+      margin-top: 20px;
+      padding: 18px;
+      border-radius: 22px;
+      background: #f0f7ef;
+      animation: feedback-in .35s cubic-bezier(.2,.9,.2,1.15) both;
+    }
+    .feedback.visible { display: grid; }
+    .feedback.timeout { background: #f8eee9; }
+    .feedback-mark { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: var(--mint); color: white; font-size: 24px; font-weight: 950; }
+    .feedback.timeout .feedback-mark { background: var(--pink); }
+    .feedback strong { display: block; margin-bottom: 3px; font-size: 20px; }
+    .feedback p { margin: 0; color: var(--muted); font-size: 13px; }
+    .next-btn { min-height: 48px; border: 0; border-radius: 14px; padding: 0 18px; background: var(--ink); color: white; font-weight: 900; cursor: pointer; }
+
+    .result-shell { padding: clamp(32px, 6vw, 70px); text-align: center; }
+    .result-badge { width: 94px; height: 94px; display: grid; place-items: center; margin: 0 auto 22px; border-radius: 46% 54% 48% 52%; background: var(--yellow); color: white; font-size: 47px; transform: rotate(-4deg); box-shadow: 0 10px 0 rgba(171,126,36,.16); }
+    .result-shell h2 { margin: 0; font-size: clamp(37px, 6vw, 60px); letter-spacing: -.065em; }
+    .result-message { margin: 14px auto 30px; max-width: 520px; color: var(--muted); font-size: 17px; line-height: 1.65; }
+    .result-score { margin-bottom: 28px; }
+    .result-score strong { display: block; color: var(--coral-dark); font-size: clamp(66px, 11vw, 104px); line-height: 1; letter-spacing: -.07em; }
+    .result-score span { color: var(--muted); font-size: 14px; font-weight: 800; }
+    .result-stats { display: flex; justify-content: center; gap: 44px; margin: 0 0 34px; }
+    .result-stat { min-width: 100px; }
+    .result-stat strong { display: block; font-size: 25px; }
+    .result-stat span { color: var(--muted); font-size: 12px; }
+    .result-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+    .secondary-btn { min-height: 58px; padding: 0 24px; border: 2px solid var(--line); border-radius: 18px; background: transparent; color: var(--ink); font-weight: 900; cursor: pointer; }
+
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+    @keyframes screen-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+    @keyframes tile-pop { from { opacity: 0; transform: scale(.7) rotate(-8deg); } }
+    @keyframes hint-in { 0% { background: rgba(244,201,107,.25); } 100% { background: transparent; } }
+    @keyframes shake { 25% { transform: translateX(-7px); } 50% { transform: translateX(6px); } 75% { transform: translateX(-3px); } }
+    @keyframes feedback-in { from { opacity: 0; transform: scale(.96) translateY(5px); } }
+
+    @media (max-width: 760px) {
+      .app { width: min(100% - 24px, 620px); padding: 14px 0; align-items: start; }
+      .topbar { margin: 4px 2px 30px; }
+      .start-layout { grid-template-columns: 1fr; gap: 54px; }
+      h1 { font-size: clamp(52px, 17vw, 78px); }
+      .intro-copy { font-size: 17px; margin-top: 20px; }
+      .how-it-works { transform: none; padding: 30px 24px 25px; }
+      .game-shell { border-radius: 27px; }
+      .game-head { padding: 16px 18px; gap: 8px; }
+      .timer { width: 62px; height: 62px; }
+      .timer small { top: 42px; }
+      .game-body { padding: 22px 17px 20px; }
+      .consonants { min-height: 92px; }
+      .hint-track { margin-top: 12px; }
+      .hint-line { grid-template-columns: 64px 1fr; padding-inline: 10px; }
+      .answer-form { grid-template-columns: 1fr; }
+      .submit-btn { width: 100%; }
+      .feedback { grid-template-columns: auto 1fr; }
+      .feedback .next-btn { grid-column: 1 / -1; width: 100%; }
+      .result-shell { margin-top: 0; }
+      .result-stats { gap: 12px; justify-content: space-around; }
+      .result-stat { min-width: 75px; }
+    }
+
+    @media (max-height: 760px) and (min-width: 761px) {
+      .app { padding: 14px 0; align-items: start; }
+      .game-head { padding-block: 13px; }
+      .timer { width: 58px; height: 58px; }
+      .timer small { display: none; }
+      .game-body { padding-block: 20px; }
+      .consonants { min-height: 80px; font-size: 58px; }
+      .hint-track { margin: 10px 0; }
+      .hints { min-height: 105px; }
+      .hint-line { min-height: 51px; padding-block: 8px; }
+      .answer-form { margin-top: 12px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="game-canvas" aria-hidden="true"></canvas>
+
+  <main class="app">
+    <section id="start-screen" class="screen active" aria-labelledby="game-title">
+      <div class="topbar">
+        <div class="brand"><span class="brand-mark">마</span> 감정 다이어리</div>
+        <button class="icon-btn sound-toggle" type="button" aria-label="소리 끄기" title="소리 켜기/끄기">♪</button>
+      </div>
+
+      <div class="start-layout">
+        <div>
+          <p class="eyebrow">감정 단어 초성 퀴즈</p>
+          <h1 id="game-title">마음 초성<span>탐험대</span></h1>
+          <p class="intro-copy"><strong id="bank-count">90</strong>가지 감정 단어의 초성을 보고 마음의 이름을 찾아보세요. 시간이 흐르면 상황과 뜻이 차례로 나타나요.</p>
+          <div class="round-select" aria-label="문제 수 선택">
+            <span>문제 수</span>
+            <button class="round-btn" type="button" data-count="5">5개</button>
+            <button class="round-btn selected" type="button" data-count="10">10개</button>
+            <button class="round-btn" type="button" data-count="20">20개</button>
+          </div>
+          <button id="start-btn" class="primary-btn" type="button">탐험 시작하기 <span aria-hidden="true">→</span></button>
+        </div>
+
+        <aside class="how-it-works" aria-label="게임 방법">
+          <h2>시간이 흐를수록 힌트가 열려요</h2>
+          <div class="hint-step"><span class="step-number">15</span><div><strong>초성만 보기</strong><p>가장 높은 점수를 얻을 수 있어요.</p></div></div>
+          <div class="hint-step"><span class="step-number">10</span><div><strong>상황 힌트</strong><p>언제 느끼는 마음인지 알려줘요.</p></div></div>
+          <div class="hint-step"><span class="step-number">5</span><div><strong>뜻 힌트</strong><p>단어의 의미까지 보여줘요.</p></div></div>
+          <p class="micro-help">같은 초성은 1단계에서 여러 정답 인정 · Enter로 제출 · F로 전체 화면</p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="game-screen" class="screen" aria-label="감정 초성 퀴즈 진행 화면">
+      <div class="topbar">
+        <div class="brand"><span class="brand-mark">마</span> 마음 초성 탐험대</div>
+        <button class="icon-btn sound-toggle" type="button" aria-label="소리 끄기" title="소리 켜기/끄기">♪</button>
+      </div>
+
+      <div class="game-shell">
+        <header class="game-head">
+          <div class="progress-label"><strong id="question-number">1</strong> / <span id="question-total">10</span> 문제</div>
+          <div class="timer" aria-label="남은 시간">
+            <svg viewBox="0 0 80 80" aria-hidden="true">
+              <circle class="track" cx="40" cy="40" r="33"></circle>
+              <circle id="timer-ring" class="fill" cx="40" cy="40" r="33"></circle>
+            </svg>
+            <strong id="timer-text">15</strong><small>초</small>
+          </div>
+          <div class="score">점수<strong id="score-text">0</strong></div>
+        </header>
+
+        <div class="game-body">
+          <div class="consonant-zone">
+            <p class="question-kicker">이 마음의 이름은 무엇일까요?</p>
+            <div id="consonants" class="consonants" aria-label="초성"></div>
+          </div>
+
+          <div class="hint-track" aria-hidden="true">
+            <div id="track-1" class="track-item on"><span class="track-dot"></span>초성 · 100점</div>
+            <div id="track-2" class="track-item"><span class="track-dot"></span>상황 · 70점</div>
+            <div id="track-3" class="track-item"><span class="track-dot"></span>뜻 · 40점</div>
+          </div>
+
+          <div class="hints" aria-live="polite">
+            <div id="situation-hint" class="hint-line">
+              <span class="hint-label">상황 힌트</span>
+              <span class="hint-text"><span class="locked-copy">10초가 되면 열려요</span></span>
+            </div>
+            <div id="meaning-hint" class="hint-line">
+              <span class="hint-label">뜻 힌트</span>
+              <span class="hint-text"><span class="locked-copy">5초가 되면 열려요</span></span>
+            </div>
+          </div>
+
+          <form id="answer-form" class="answer-form" autocomplete="off">
+            <label class="sr-only" for="answer-input">정답 입력</label>
+            <input id="answer-input" class="answer-input" type="text" inputmode="text" placeholder="감정 단어를 적어 보세요" maxlength="20" enterkeyhint="done">
+            <button class="primary-btn submit-btn" type="submit">정답 확인</button>
+          </form>
+          <p id="answer-note" class="answer-note" aria-live="polite">띄어쓰기와 ‘~해요’는 달라도 괜찮아요.</p>
+
+          <div id="feedback" class="feedback" aria-live="assertive">
+            <span id="feedback-mark" class="feedback-mark">✓</span>
+            <div><strong id="feedback-title">정답이에요!</strong><p id="feedback-copy"></p></div>
+            <button id="next-btn" class="next-btn" type="button">다음 문제 →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="result-screen" class="screen" aria-labelledby="result-title">
+      <div class="result-shell">
+        <div class="result-badge" aria-hidden="true">★</div>
+        <h2 id="result-title">마음 탐험 완료!</h2>
+        <p id="result-message" class="result-message">감정의 이름을 알면 내 마음을 더 잘 이야기할 수 있어요.</p>
+        <div class="result-score"><strong id="final-score">0</strong><span>최종 점수</span></div>
+        <div class="result-stats">
+          <div class="result-stat"><strong id="correct-stat">0 / 10</strong><span>맞힌 문제</span></div>
+          <div class="result-stat"><strong id="best-stat">0</strong><span>나의 최고점</span></div>
+          <div class="result-stat"><strong id="early-stat">0</strong><span>초성만 보고 성공</span></div>
+        </div>
+        <div class="result-actions">
+          <button id="retry-btn" class="primary-btn" type="button">한 번 더 하기</button>
+          <button id="home-btn" class="secondary-btn" type="button">처음으로</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      function emotion(answer, initials, situation, meaning, aliases = []) {
+        return { answer, initials, situation, meaning, aliases: [...new Set([answer, ...aliases])] };
+      }
+
+      const QUESTIONS = [
+        { answer: "창피해", initials: "ㅊㅍㅎ", situation: "수업 시간에 내 배에서 꼬르륵 소리가 크게 났어.", meaning: "실수나 모습이 다른 사람에게 드러나 얼굴이 화끈하고 숨고 싶은 마음이에요.", aliases: ["창피해", "창피하다", "창피해요"] },
+        { answer: "기뻐", initials: "ㄱㅃ", situation: "보고 싶던 친구가 나를 만나러 왔어.", meaning: "좋은 일이 생겨 마음이 밝아지고 웃음이 나는 느낌이에요.", aliases: ["기뻐", "기쁘다", "기뻐요", "기쁨"] },
+        { answer: "설레", initials: "ㅅㄹ", situation: "내일 처음으로 놀이공원에 가기로 했어.", meaning: "기대되는 일을 앞두고 마음이 두근두근 들뜨는 느낌이에요.", aliases: ["설레", "설레다", "설레요", "설렘"] },
+        { answer: "뿌듯해", initials: "ㅃㄷㅎ", situation: "어려웠던 줄넘기를 연습해서 마침내 성공했어.", meaning: "노력한 일을 해냈을 때 나 자신이 자랑스럽고 든든한 마음이에요.", aliases: ["뿌듯해", "뿌듯하다", "뿌듯해요", "뿌듯함"] },
+        { answer: "속상해", initials: "ㅅㅅㅎ", situation: "아끼던 색연필이 부러져 버렸어.", meaning: "바라던 대로 되지 않아 마음이 아프고 좋지 않은 느낌이에요.", aliases: ["속상해", "속상하다", "속상해요", "속상함"] },
+        { answer: "걱정돼", initials: "ㄱㅈㄷ", situation: "아픈 강아지가 빨리 낫지 않을까 봐 자꾸 생각나.", meaning: "앞으로 좋지 않은 일이 생길까 마음을 놓기 어려운 느낌이에요.", aliases: ["걱정돼", "걱정되다", "걱정돼요", "걱정"] },
+        { answer: "답답해", initials: "ㄷㄷㅎ", situation: "하고 싶은 말이 있는데 아무도 내 이야기를 들어주지 않아.", meaning: "마음대로 풀리거나 통하지 않아 꽉 막힌 것 같은 느낌이에요.", aliases: ["답답해", "답답하다", "답답해요", "답답함"] },
+        { answer: "편안해", initials: "ㅍㅇㅎ", situation: "포근한 이불을 덮고 좋아하는 이야기를 듣고 있어.", meaning: "걱정이나 긴장이 없이 몸과 마음이 느긋한 느낌이에요.", aliases: ["편안해", "편안하다", "편안해요", "편안함"] },
+        { answer: "고마워", initials: "ㄱㅁㅇ", situation: "친구가 무거운 준비물을 함께 들어 주었어.", meaning: "다른 사람이 베푼 도움이나 마음을 소중하게 느끼는 마음이에요.", aliases: ["고마워", "고맙다", "고마워요", "감사해", "감사하다"] },
+        { answer: "무서워", initials: "ㅁㅅㅇ", situation: "불이 꺼진 방에서 갑자기 큰 소리가 들렸어.", meaning: "위험할 것 같아 몸이 움츠러들고 피하고 싶은 느낌이에요.", aliases: ["무서워", "무섭다", "무서워요", "두려워", "두렵다"] },
+        { answer: "화가 나", initials: "ㅎㄱㄴ", situation: "친구가 빌려 간 물건을 망가뜨리고도 모른 척했어.", meaning: "옳지 않거나 마음에 들지 않는 일 때문에 몸에 힘이 들어가는 느낌이에요.", aliases: ["화가나", "화나다", "화가나요", "화나요", "분노"] },
+        { answer: "억울해", initials: "ㅇㅇㅎ", situation: "내가 하지 않은 일인데 선생님이 내가 했다고 생각하셨어.", meaning: "잘못이 없는데 오해나 꾸중을 받아 마음이 아프고 분한 느낌이에요.", aliases: ["억울해", "억울하다", "억울해요", "억울함"] },
+        { answer: "서운해", initials: "ㅅㅇㅎ", situation: "친한 친구가 다른 친구만 생일 파티에 초대했어.", meaning: "기대했던 관심이나 다정함을 받지 못해 섭섭한 느낌이에요.", aliases: ["서운해", "서운하다", "서운해요", "서운함", "섭섭해"] },
+        { answer: "신나", initials: "ㅅㄴ", situation: "좋아하는 음악이 나와서 친구들과 함께 춤을 추었어.", meaning: "즐거운 일로 마음과 몸에 힘이 솟고 들뜬 느낌이에요.", aliases: ["신나", "신나다", "신나요", "신남"] },
+        { answer: "슬퍼", initials: "ㅅㅍ", situation: "정성껏 키우던 화분의 꽃이 시들어 버렸어.", meaning: "소중한 것을 잃거나 마음 아픈 일을 겪어 눈물이 날 것 같은 느낌이에요.", aliases: ["슬퍼", "슬프다", "슬퍼요", "슬픔"] },
+
+        emotion("행복해", "ㅎㅂㅎ", "가족과 함께 맛있는 음식을 먹으며 웃었어.", "좋은 순간이 마음에 가득 차 오래 즐기고 싶은 느낌이에요.", ["행복하다", "행복해요", "행복"]),
+        emotion("즐거워", "ㅈㄱㅇ", "친구들과 재미있는 놀이를 했어.", "재미있는 일로 마음이 밝아지고 웃음이 나는 느낌이에요.", ["즐겁다", "즐거워요", "즐거움"]),
+        emotion("반가워", "ㅂㄱㅇ", "오랫동안 만나지 못한 친구를 다시 만났어.", "보고 싶던 사람을 만나 마음이 기쁘고 가까이 가고 싶은 느낌이에요.", ["반갑다", "반가워요", "반가움"]),
+        emotion("궁금해", "ㄱㄱㅎ", "포장된 상자 안에 무엇이 있는지 알고 싶어.", "모르는 것을 더 알아보고 싶은 마음이에요.", ["궁금하다", "궁금해요", "궁금함"]),
+        emotion("놀랐어", "ㄴㄹㅇㅆ", "뒤에서 갑자기 친구가 내 이름을 불렀어.", "생각하지 못한 일이 생겨 몸과 마음이 순간 크게 반응한 느낌이에요.", ["놀라다", "놀랐어요", "놀라워", "놀람"]),
+        emotion("당황해", "ㄷㅎㅎ", "발표하려고 나갔는데 준비한 말이 생각나지 않았어.", "예상하지 못한 일로 무엇을 해야 할지 바로 떠오르지 않는 느낌이에요.", ["당황하다", "당황해요", "당황"]),
+        emotion("떨려", "ㄸㄹ", "많은 사람 앞에서 처음으로 발표하게 되었어.", "중요한 일을 앞두고 긴장이나 기대 때문에 몸과 마음이 흔들리는 느낌이에요.", ["떨리다", "떨려요", "떨림"]),
+        emotion("외로워", "ㅇㄹㅇ", "쉬는 시간에 함께 놀 친구가 보이지 않았어.", "함께할 사람이 없다고 느껴 마음 한쪽이 비어 있는 느낌이에요.", ["외롭다", "외로워요", "외로움"]),
+        emotion("지루해", "ㅈㄹㅎ", "기다리는 시간이 너무 길어서 할 일이 없었어.", "재미나 변화가 없어 시간이 길게 느껴지는 마음이에요.", ["지루하다", "지루해요", "지루함"]),
+        emotion("피곤해", "ㅍㄱㅎ", "하루 종일 체험 활동을 하고 집에 돌아왔어.", "힘을 많이 써서 몸과 마음이 쉬고 싶은 상태예요.", ["피곤하다", "피곤해요", "피곤함"]),
+        emotion("후련해", "ㅎㄹㅎ", "걱정하던 발표를 무사히 끝냈어.", "걱정이나 막힌 일이 풀려 마음이 시원하고 가벼운 느낌이에요.", ["후련하다", "후련해요", "후련함"]),
+        emotion("안심돼", "ㅇㅅㄷ", "잃어버린 줄 알았던 가방을 다시 찾았어.", "걱정하던 일이 괜찮아져 마음을 놓게 되는 느낌이에요.", ["안심되다", "안심돼요", "안심", "안도돼"]),
+        emotion("미안해", "ㅁㅇㅎ", "실수로 친구가 만든 작품을 망가뜨렸어.", "내 행동으로 다른 사람이 힘들어져 잘못을 고치고 싶은 마음이에요.", ["미안하다", "미안해요", "미안함"]),
+        emotion("부러워", "ㅂㄹㅇ", "친구가 내가 갖고 싶었던 장난감을 가지고 있어.", "다른 사람의 좋은 점이나 물건을 나도 가지고 싶은 마음이에요.", ["부럽다", "부러워요", "부러움"]),
+        emotion("질투 나", "ㅈㅌㄴ", "친한 친구가 다른 친구하고만 계속 놀았어.", "소중한 사람의 관심이 다른 사람에게 향해 샘이 나는 마음이에요.", ["질투나다", "질투나요", "질투", "샘나"]),
+        emotion("아쉬워", "ㅇㅅㅇ", "재미있는 여행이 벌써 끝나 집에 가야 해.", "좋았던 일이 끝나거나 조금 부족해 더 이어지기를 바라는 마음이에요.", ["아쉽다", "아쉬워요", "아쉬움"]),
+        emotion("실망해", "ㅅㅁㅎ", "열심히 준비했지만 바라던 결과를 얻지 못했어.", "기대했던 것과 결과가 달라 마음의 힘이 빠지는 느낌이에요.", ["실망하다", "실망해요", "실망"]),
+        emotion("후회돼", "ㅎㅎㄷ", "화가 나서 친구에게 너무 심한 말을 했어.", "지나간 행동이나 선택을 바꾸고 싶은 마음이에요.", ["후회되다", "후회돼요", "후회"]),
+        emotion("초조해", "ㅊㅈㅎ", "대회 결과가 나오기를 계속 기다리고 있어.", "결과가 걱정되어 가만히 기다리기 어려운 느낌이에요.", ["초조하다", "초조해요", "초조함"]),
+        emotion("불안해", "ㅂㅇㅎ", "처음 가는 곳에서 혼자 기다려야 해.", "좋지 않은 일이 생길 것 같아 마음이 편하지 않은 느낌이에요.", ["불안하다", "불안해요", "불안"]),
+        emotion("귀찮아", "ㄱㅊㅇ", "쉬고 싶은데 정리해야 할 물건이 많이 남아 있어.", "해야 할 일이 번거롭게 느껴져 움직이고 싶지 않은 마음이에요.", ["귀찮다", "귀찮아요", "귀찮음"]),
+        emotion("짜증 나", "ㅉㅈㄴ", "만들기가 자꾸 뜻대로 되지 않아.", "일이 잘 풀리지 않아 신경이 날카로워지고 화가 나는 느낌이에요.", ["짜증나다", "짜증나요", "짜증"]),
+        emotion("허전해", "ㅎㅈㅎ", "즐겁게 놀던 친구들이 모두 집으로 돌아갔어.", "곁에 있던 것이 사라져 마음이 빈 것 같은 느낌이에요.", ["허전하다", "허전해요", "허전함"]),
+        emotion("기대돼", "ㄱㄷㄷ", "다음 주에 좋아하는 체험학습을 가기로 했어.", "앞으로 좋은 일이 생길 것 같아 기다려지는 마음이에요.", ["기대되다", "기대돼요", "기대"]),
+        emotion("만족해", "ㅁㅈㅎ", "내가 만든 작품이 생각했던 모습대로 완성됐어.", "결과가 바랐던 것과 잘 맞아 마음에 드는 느낌이에요.", ["만족하다", "만족해요", "만족"]),
+        emotion("감동했어", "ㄱㄷㅎㅆ", "친구들이 나를 위해 깜짝 편지를 써 주었어.", "따뜻하거나 훌륭한 일을 만나 마음이 크게 움직인 느낌이에요.", ["감동하다", "감동했어요", "감동해", "감동"]),
+        emotion("뭉클해", "ㅁㅋㅎ", "가족이 나를 응원하는 모습을 보니 가슴이 따뜻해졌어.", "따뜻한 일로 가슴이 차오르고 눈물이 날 것 같은 느낌이에요.", ["뭉클하다", "뭉클해요", "뭉클함"]),
+        emotion("상쾌해", "ㅅㅋㅎ", "아침에 맑은 공기를 마시며 산책했어.", "몸과 마음이 맑고 시원해진 느낌이에요.", ["상쾌하다", "상쾌해요", "상쾌함"]),
+        emotion("그리워", "ㄱㄹㅇ", "멀리 이사 간 친구가 자꾸 생각나.", "보고 싶은 사람이나 지난때를 떠올리며 다시 만나고 싶은 마음이에요.", ["그립다", "그리워요", "그리움"]),
+        emotion("안타까워", "ㅇㅌㄲㅇ", "다친 동물이 힘들어하는 모습을 보았어.", "도와주고 싶지만 뜻대로 되지 않아 마음이 아픈 느낌이에요.", ["안타깝다", "안타까워요", "안타까움"]),
+
+        emotion("자랑스러워", "ㅈㄹㅅㄹㅇ", "동생에게 어려운 문제를 친절하게 알려 주었어.", "내가 한 좋은 행동이나 성장을 기쁘고 소중하게 여기는 마음이에요.", ["자랑스럽다", "자랑스러워요", "자랑스러움"]),
+        emotion("대견해", "ㄷㄱㅎ", "포기하지 않고 끝까지 노력한 나를 돌아보았어.", "어려운 일을 해낸 모습이 기특하고 자랑스러운 마음이에요.", ["대견하다", "대견해요", "대견함"]),
+        emotion("으쓱해", "ㅇㅆㅎ", "친구들이 내가 만든 작품을 칭찬해 주었어.", "잘한 일을 인정받아 어깨가 올라가는 듯 기분 좋은 느낌이에요.", ["으쓱하다", "으쓱해요", "으쓱"]),
+        emotion("용기 나", "ㅇㄱㄴ", "친구의 응원을 듣고 다시 도전하고 싶어졌어.", "무섭거나 어려워도 해 보려는 힘이 마음에서 생기는 느낌이에요.", ["용기나다", "용기나요", "용기가나", "용기가나요"]),
+        emotion("자신 있어", "ㅈㅅㅇㅆ", "열심히 연습한 발표를 잘할 수 있을 것 같아.", "내가 해낼 수 있다고 믿는 든든한 마음이에요.", ["자신있어", "자신있다", "자신있어요", "자신감있어"]),
+        emotion("보람차", "ㅂㄹㅊ", "친구들과 교실을 깨끗하게 정리했어.", "힘을 들인 일이 좋은 결과로 이어져 의미 있고 흐뭇한 느낌이에요.", ["보람차다", "보람차요", "보람"]),
+        emotion("희망차", "ㅎㅁㅊ", "실패했지만 다음에는 더 잘할 수 있을 것 같아.", "앞으로 좋은 일이 생기거나 해낼 수 있다고 믿는 밝은 마음이에요.", ["희망차다", "희망차요", "희망"]),
+        emotion("활기차", "ㅎㄱㅊ", "푹 자고 일어나 무엇이든 하고 싶은 힘이 생겼어.", "몸과 마음에 힘이 넘치고 움직이고 싶은 느낌이에요.", ["활기차다", "활기차요", "활기"]),
+        emotion("흥미로워", "ㅎㅁㄹㅇ", "처음 보는 신기한 실험을 관찰하고 있어.", "새롭거나 재미있는 것에 마음이 끌려 더 알아보고 싶은 느낌이에요.", ["흥미롭다", "흥미로워요", "흥미"]),
+        emotion("벅차", "ㅂㅊ", "오랫동안 준비한 공연을 성공적으로 마쳤어.", "큰 기쁨이나 감동이 마음에 가득 차오르는 느낌이에요.", ["벅차다", "벅차요", "벅참"]),
+        emotion("차분해", "ㅊㅂㅎ", "조용한 음악을 들으며 천천히 숨을 쉬었어.", "마음이 가라앉아 서두르거나 흔들리지 않는 느낌이에요.", ["차분하다", "차분해요", "차분함"]),
+        emotion("홀가분해", "ㅎㄱㅂㅎ", "밀린 숙제를 모두 끝냈어.", "걱정이나 해야 할 일이 줄어 마음이 가볍고 편한 느낌이에요.", ["홀가분하다", "홀가분해요", "홀가분함"]),
+        emotion("아늑해", "ㅇㄴㅎ", "따뜻한 방에서 포근한 담요를 덮었어.", "작고 편안한 곳에서 보호받는 듯 포근한 느낌이에요.", ["아늑하다", "아늑해요", "아늑함"]),
+        emotion("여유로워", "ㅇㅇㄹㅇ", "해야 할 일을 마치고 천천히 쉬고 있어.", "시간이나 마음이 넉넉해 서두르지 않아도 되는 느낌이에요.", ["여유롭다", "여유로워요", "여유"]),
+        emotion("평화로워", "ㅍㅎㄹㅇ", "잔잔한 호수를 바라보며 가만히 앉아 있어.", "다툼이나 걱정 없이 마음이 조용하고 편안한 느낌이에요.", ["평화롭다", "평화로워요", "평화"]),
+        emotion("자유로워", "ㅈㅇㄹㅇ", "넓은 운동장에서 마음껏 뛰어놀았어.", "억누르거나 막는 것이 없어 원하는 대로 움직일 수 있는 느낌이에요.", ["자유롭다", "자유로워요", "자유"]),
+        emotion("따뜻해", "ㄸㄸㅎ", "친구가 힘들 때 내 손을 꼭 잡아 주었어.", "다정한 관심과 사랑을 받아 마음이 포근해지는 느낌이에요.", ["따뜻하다", "따뜻해요", "따뜻함"]),
+        emotion("안전해", "ㅇㅈㅎ", "무서운 일이 끝나고 가족 곁으로 돌아왔어.", "위험이나 걱정에서 벗어나 보호받고 있다고 느끼는 마음이에요.", ["안전하다", "안전해요", "안전함"]),
+        emotion("사랑해", "ㅅㄹㅎ", "가족이 나를 꼭 안아 주었어.", "누군가를 매우 소중하게 여기고 아껴 주고 싶은 마음이에요.", ["사랑하다", "사랑해요", "사랑"]),
+        emotion("존경해", "ㅈㄱㅎ", "어려운 사람을 돕는 선생님의 모습을 보았어.", "다른 사람의 훌륭한 모습이나 행동을 높이 여기고 배우고 싶은 마음이에요.", ["존경하다", "존경해요", "존경"]),
+        emotion("친근해", "ㅊㄱㅎ", "새 친구와 좋아하는 놀이가 같다는 것을 알았어.", "낯설지 않고 가까이 다가가 이야기하기 편한 느낌이에요.", ["친근하다", "친근해요", "친근함"]),
+        emotion("애틋해", "ㅇㅌㅎ", "어릴 때부터 함께한 인형을 바라보았어.", "오랫동안 아낀 대상을 생각하며 소중하고 안타깝게 여기는 마음이에요.", ["애틋하다", "애틋해요", "애틋함"]),
+        emotion("안쓰러워", "ㅇㅆㄹㅇ", "친구가 다쳤는데도 혼자 참고 있는 모습을 보았어.", "힘들어하는 모습을 보고 도와주고 싶어 마음이 아픈 느낌이에요.", ["안쓰럽다", "안쓰러워요", "안쓰러움"]),
+        emotion("정들어", "ㅈㄷㅇ", "오랫동안 함께한 친구와 헤어져야 해.", "오래 함께한 사람이나 장소가 익숙하고 소중해진 마음이에요.", ["정들다", "정들었어", "정들었어요", "정"]),
+        emotion("믿음 가", "ㅁㅇㄱ", "친구가 약속을 여러 번 잘 지켜 주었어.", "상대가 말과 행동을 잘 지킬 것 같아 의지할 수 있는 느낌이에요.", ["믿음가", "믿음이간다", "믿음이가", "신뢰해"]),
+        emotion("공감돼", "ㄱㄱㄷ", "친구의 이야기를 들으니 나도 비슷했던 일이 떠올랐어.", "다른 사람의 느낌이나 생각이 내 마음처럼 이해되는 느낌이에요.", ["공감되다", "공감돼요", "공감해", "공감"]),
+        emotion("어색해", "ㅇㅅㅎ", "처음 만난 친구와 단둘이 앉아 있게 되었어.", "익숙하지 않아 말이나 행동을 어떻게 해야 할지 불편한 느낌이에요.", ["어색하다", "어색해요", "어색함"]),
+        emotion("낯설어", "ㄴㅅㅇ", "처음 가 보는 교실에 혼자 들어갔어.", "처음 만나거나 익숙하지 않아 새롭고 어색한 느낌이에요.", ["낯설다", "낯설어요", "낯섦"]),
+        emotion("쑥스러워", "ㅆㅅㄹㅇ", "친구들 앞에서 큰 칭찬을 받았어.", "관심을 받아 기쁘면서도 얼굴을 보이기 조금 부끄러운 느낌이에요.", ["쑥스럽다", "쑥스러워요", "쑥스러움"]),
+        emotion("조심스러워", "ㅈㅅㅅㄹㅇ", "화가 난 친구에게 먼저 말을 걸려고 해.", "상대나 상황을 살피며 말과 행동을 신중하게 하고 싶은 마음이에요.", ["조심스럽다", "조심스러워요", "조심스러움"]),
+        emotion("얼떨떨해", "ㅇㄸㄸㅎ", "생각하지 못했는데 갑자기 상을 받았어.", "뜻밖의 일이 생겨 아직 상황이 잘 실감나지 않는 느낌이에요.", ["얼떨떨하다", "얼떨떨해요", "얼떨떨함"]),
+        emotion("난감해", "ㄴㄱㅎ", "두 친구가 서로 자기 편이 되어 달라고 했어.", "어떻게 행동해야 좋을지 결정하기 어려운 느낌이에요.", ["난감하다", "난감해요", "난감함"]),
+        emotion("부담돼", "ㅂㄷㄷ", "모두가 내가 꼭 이겨야 한다고 이야기했어.", "잘해야 한다는 기대가 무겁게 느껴져 마음이 편하지 않은 느낌이에요.", ["부담되다", "부담돼요", "부담"]),
+        emotion("망설여져", "ㅁㅅㅇㅈ", "친구에게 미안하다고 말하고 싶지만 쉽게 입이 열리지 않아.", "어떻게 할지 마음을 정하지 못해 바로 행동하기 어려운 느낌이에요.", ["망설여지다", "망설여져요", "망설이다", "망설여"]),
+        emotion("조마조마해", "ㅈㅁㅈㅁㅎ", "쌓아 올린 블록이 금방이라도 쓰러질 것 같아.", "걱정되는 일이 일어날까 봐 마음을 놓지 못하는 느낌이에요.", ["조마조마하다", "조마조마해요", "조마조마"]),
+        emotion("불편해", "ㅂㅍㅎ", "친구가 싫다고 했는데도 계속 장난을 쳤어.", "몸이나 마음이 편하지 않고 그 상황에서 벗어나고 싶은 느낌이에요.", ["불편하다", "불편해요", "불편함"]),
+        emotion("불쾌해", "ㅂㅋㅎ", "누군가 허락 없이 내 물건을 사용했어.", "싫은 일을 겪어 기분이 상하고 마음에 들지 않는 느낌이에요.", ["불쾌하다", "불쾌해요", "불쾌함"]),
+        emotion("분해", "ㅂㅎ", "열심히 했는데 반칙한 친구가 이겼어.", "억울하거나 화나는 일로 마음이 몹시 상한 느낌이에요.", ["분하다", "분해요", "분함"]),
+        emotion("울적해", "ㅇㅈㅎ", "특별한 이유는 없지만 마음이 가라앉고 힘이 없어.", "기분이 가라앉아 즐겁지 않고 쓸쓸한 느낌이에요.", ["울적하다", "울적해요", "울적함"]),
+        emotion("쓸쓸해", "ㅆㅆㅎ", "모두 떠난 놀이터에 혼자 남아 있어.", "주변이 조용하고 함께할 사람이 없어 외로운 느낌이에요.", ["쓸쓸하다", "쓸쓸해요", "쓸쓸함"]),
+        emotion("서글퍼", "ㅅㄱㅍ", "소중한 추억이 담긴 물건을 잃어버렸어.", "안타깝고 슬픈 일이 마음에 오래 남는 느낌이에요.", ["서글프다", "서글퍼요", "서글픔"]),
+        emotion("허무해", "ㅎㅁㅎ", "열심히 만든 모래성이 한순간에 무너졌어.", "노력한 것이 사라져 마음이 텅 비고 의미가 없어진 듯한 느낌이에요.", ["허무하다", "허무해요", "허무함"]),
+        emotion("좌절해", "ㅈㅈㅎ", "여러 번 도전했지만 계속 성공하지 못했어.", "바라던 일을 이루기 어려워 힘과 용기가 꺾인 느낌이에요.", ["좌절하다", "좌절해요", "좌절"]),
+        emotion("낙담해", "ㄴㄷㅎ", "기대했던 대회에서 좋은 결과를 얻지 못했어.", "기대가 무너져 마음의 힘이 빠지고 풀이 죽은 느낌이에요.", ["낙담하다", "낙담해요", "낙담"]),
+        emotion("싫증 나", "ㅅㅈㄴ", "같은 놀이를 너무 오래 반복했어.", "같은 일을 계속해 더는 하고 싶지 않은 마음이에요.", ["싫증나다", "싫증나요", "싫증"])
+      ];
+
+      const els = Object.fromEntries([
+        "start-screen", "game-screen", "result-screen", "start-btn", "question-number", "question-total",
+        "timer-ring", "timer-text", "score-text", "consonants", "situation-hint", "meaning-hint",
+        "track-1", "track-2", "track-3", "answer-form", "answer-input", "answer-note", "feedback",
+        "feedback-mark", "feedback-title", "feedback-copy", "next-btn", "final-score", "correct-stat",
+        "best-stat", "early-stat", "retry-btn", "home-btn", "result-message", "game-canvas", "bank-count"
+      ].map(id => [id.replaceAll("-", "_"), document.getElementById(id)]));
+
+      const state = {
+        mode: "start",
+        count: 10,
+        deck: [],
+        index: 0,
+        elapsed: 0,
+        score: 0,
+        correct: 0,
+        early: 0,
+        attempts: 0,
+        locked: false,
+        hintStage: 1,
+        sound: true
+      };
+
+      const TOTAL_TIME = 15;
+      const circumference = 2 * Math.PI * 33;
+      els.timer_ring.style.strokeDasharray = String(circumference);
+      els.bank_count.textContent = QUESTIONS.length;
+
+      function shuffle(items) {
+        const copy = [...items];
+        for (let i = copy.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        return copy;
+      }
+
+      function normalize(value) {
+        return value.trim().toLowerCase().replace(/[\s.,!?~·'"’“”_-]/g, "");
+      }
+
+      function currentQuestion() { return state.deck[state.index]; }
+
+      function setScreen(mode) {
+        state.mode = mode;
+        ["start", "game", "result"].forEach(name => {
+          els[`${name}_screen`].classList.toggle("active", name === mode);
+        });
+      }
+
+      function playTone(kind) {
+        if (!state.sound) return;
+        try {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          const ctx = playTone.ctx || (playTone.ctx = new AudioCtx());
+          const now = ctx.currentTime;
+          const notes = kind === "correct" ? [523, 659, 784] : kind === "hint" ? [440] : [220, 196];
+          notes.forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = "sine";
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(.0001, now + i * .07);
+            gain.gain.exponentialRampToValueAtTime(.09, now + i * .07 + .015);
+            gain.gain.exponentialRampToValueAtTime(.0001, now + i * .07 + .14);
+            osc.connect(gain).connect(ctx.destination);
+            osc.start(now + i * .07);
+            osc.stop(now + i * .07 + .16);
+          });
+        } catch (_) { /* sound is optional */ }
+      }
+
+      function renderInitials(text) {
+        els.consonants.innerHTML = "";
+        [...text].forEach(char => {
+          const span = document.createElement("span");
+          span.textContent = char === " " ? "" : char;
+          if (char === " ") span.className = "space";
+          els.consonants.appendChild(span);
+        });
+      }
+
+      function startGame() {
+        state.deck = shuffle(QUESTIONS).slice(0, state.count);
+        state.index = 0;
+        state.score = 0;
+        state.correct = 0;
+        state.early = 0;
+        els.question_total.textContent = state.count;
+        els.score_text.textContent = "0";
+        setScreen("game");
+        loadQuestion();
+      }
+
+      function loadQuestion() {
+        state.elapsed = 0;
+        state.attempts = 0;
+        state.locked = false;
+        state.hintStage = 1;
+        const q = currentQuestion();
+        els.question_number.textContent = state.index + 1;
+        renderInitials(q.initials);
+        els.answer_input.value = "";
+        els.answer_input.disabled = false;
+        els.answer_note.textContent = "같은 초성의 다른 감정도 1단계에서는 정답으로 인정해요.";
+        els.feedback.className = "feedback";
+        els.answer_form.style.display = "grid";
+        els.situation_hint.classList.remove("visible");
+        els.meaning_hint.classList.remove("visible");
+        els.situation_hint.querySelector(".hint-text").innerHTML = '<span class="locked-copy">10초가 되면 열려요</span>';
+        els.meaning_hint.querySelector(".hint-text").innerHTML = '<span class="locked-copy">5초가 되면 열려요</span>';
+        els.track_1.classList.add("on");
+        els.track_2.classList.remove("on");
+        els.track_3.classList.remove("on");
+        updateTimer();
+        requestAnimationFrame(() => els.answer_input.focus({ preventScroll: true }));
+      }
+
+      function updateTimer() {
+        const remaining = Math.max(0, TOTAL_TIME - state.elapsed);
+        const whole = Math.ceil(remaining);
+        els.timer_text.textContent = whole;
+        els.timer_ring.style.strokeDashoffset = String(circumference * (1 - remaining / TOTAL_TIME));
+        els.timer_ring.style.stroke = remaining <= 5 ? "#d65e55" : remaining <= 10 ? "#e4a84e" : "#e97963";
+      }
+
+      function revealStage(stage) {
+        if (stage <= state.hintStage) return;
+        state.hintStage = stage;
+        const q = currentQuestion();
+        if (stage >= 2) {
+          els.track_2.classList.add("on");
+          els.situation_hint.querySelector(".hint-text").textContent = q.situation;
+          els.situation_hint.classList.add("visible");
+          if (!state.locked) els.answer_note.textContent = "이제 상황에 가장 알맞은 감정 단어를 적어 주세요.";
+        }
+        if (stage >= 3) {
+          els.track_3.classList.add("on");
+          els.meaning_hint.querySelector(".hint-text").textContent = q.meaning;
+          els.meaning_hint.classList.add("visible");
+          if (!state.locked) els.answer_note.textContent = "상황과 뜻을 함께 살펴보면 정답을 찾을 수 있어요.";
+        }
+        playTone("hint");
+      }
+
+      function update(dt) {
+        if (state.mode !== "game" || state.locked) return;
+        const previous = state.elapsed;
+        state.elapsed = Math.min(TOTAL_TIME, state.elapsed + dt);
+        if (previous < 5 && state.elapsed >= 5) revealStage(2);
+        if (previous < 10 && state.elapsed >= 10) revealStage(3);
+        updateTimer();
+        if (state.elapsed >= TOTAL_TIME) finishQuestion(false, true);
+      }
+
+      function pointsForStage() {
+        const base = state.hintStage === 1 ? 100 : state.hintStage === 2 ? 70 : 40;
+        const bonus = Math.max(0, Math.ceil(TOTAL_TIME - state.elapsed));
+        return Math.max(10, base + bonus - state.attempts * 5);
+      }
+
+      function submitAnswer(event) {
+        event?.preventDefault();
+        if (state.locked) return;
+        const value = normalize(els.answer_input.value);
+        if (!value) {
+          els.answer_note.textContent = "먼저 떠오르는 감정 단어를 적어 주세요.";
+          els.answer_input.focus();
+          return;
+        }
+        const q = currentQuestion();
+        const directMatch = q.aliases.some(alias => normalize(alias) === value);
+        const sameInitialMatch = !directMatch && state.hintStage === 1
+          ? QUESTIONS.find(candidate => candidate.initials === q.initials && candidate.aliases.some(alias => normalize(alias) === value))
+          : null;
+        const isCorrect = directMatch || Boolean(sameInitialMatch);
+        if (isCorrect) {
+          finishQuestion(true, false, sameInitialMatch || q);
+        } else {
+          state.attempts += 1;
+          els.answer_note.textContent = state.attempts === 1 ? "아직 아니에요. 힌트를 살펴보고 다시 생각해 볼까요?" : "조금만 더 생각해 봐요. 곧 다음 힌트가 열려요.";
+          els.answer_input.classList.remove("shake");
+          void els.answer_input.offsetWidth;
+          els.answer_input.classList.add("shake");
+          els.answer_input.select();
+          playTone("wrong");
+        }
+      }
+
+      function finishQuestion(correct, timedOut, matchedQuestion = null) {
+        if (state.locked) return;
+        state.locked = true;
+        const q = currentQuestion();
+        let gained = 0;
+        if (correct) {
+          gained = pointsForStage();
+          state.score += gained;
+          state.correct += 1;
+          if (state.hintStage === 1) state.early += 1;
+          els.feedback_mark.textContent = "✓";
+          if (matchedQuestion && matchedQuestion !== q) {
+            els.feedback_title.textContent = `정답으로 인정! ${matchedQuestion.answer}`;
+            els.feedback_copy.textContent = `같은 초성의 감정이에요. 이번 문제의 단어는 ‘${q.answer}’였어요. +${gained}점`;
+          } else {
+            els.feedback_title.textContent = `정답! ${q.answer}`;
+            els.feedback_copy.textContent = `힌트 ${state.hintStage}단계에서 +${gained}점을 얻었어요.`;
+          }
+          els.feedback.className = "feedback visible";
+          playTone("correct");
+        } else {
+          els.feedback_mark.textContent = "!";
+          els.feedback_title.textContent = `정답은 ‘${q.answer}’`;
+          els.feedback_copy.textContent = timedOut ? "괜찮아요. 새로운 감정 단어를 하나 발견했어요!" : "다음에는 맞힐 수 있어요.";
+          els.feedback.className = "feedback visible timeout";
+          playTone("wrong");
+        }
+        els.score_text.textContent = state.score;
+        els.answer_input.disabled = true;
+        els.answer_form.style.display = "none";
+        els.answer_note.textContent = "";
+        els.next_btn.textContent = state.index === state.deck.length - 1 ? "결과 보기 →" : "다음 문제 →";
+        requestAnimationFrame(() => els.next_btn.focus());
+      }
+
+      function nextQuestion() {
+        if (!state.locked) return;
+        state.index += 1;
+        if (state.index >= state.deck.length) showResult();
+        else loadQuestion();
+      }
+
+      function showResult() {
+        const storageKey = `emotionInitialQuizBest-${state.count}`;
+        let previousBest = 0;
+        try { previousBest = Number(localStorage.getItem(storageKey)) || 0; } catch (_) {}
+        const best = Math.max(previousBest, state.score);
+        try { localStorage.setItem(storageKey, String(best)); } catch (_) {}
+        els.final_score.textContent = state.score;
+        els.correct_stat.textContent = `${state.correct} / ${state.count}`;
+        els.best_stat.textContent = best;
+        els.early_stat.textContent = state.early;
+        els.result_message.textContent = state.correct === state.count
+          ? "모든 마음의 이름을 찾았어요! 감정 단어 박사님이네요."
+          : "감정의 이름을 알면 내 마음을 더 잘 이야기할 수 있어요.";
+        setScreen("result");
+        playTone("correct");
+      }
+
+      function goHome() { setScreen("start"); }
+
+      document.querySelectorAll(".round-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.count = Number(btn.dataset.count);
+          document.querySelectorAll(".round-btn").forEach(b => b.classList.toggle("selected", b === btn));
+        });
+      });
+      document.querySelectorAll(".sound-toggle").forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.sound = !state.sound;
+          document.querySelectorAll(".sound-toggle").forEach(b => {
+            b.textContent = state.sound ? "♪" : "×";
+            b.setAttribute("aria-label", state.sound ? "소리 끄기" : "소리 켜기");
+          });
+          if (state.sound) playTone("hint");
+        });
+      });
+      els.start_btn.addEventListener("click", startGame);
+      els.answer_form.addEventListener("submit", submitAnswer);
+      els.next_btn.addEventListener("click", nextQuestion);
+      els.retry_btn.addEventListener("click", startGame);
+      els.home_btn.addEventListener("click", goHome);
+
+      document.addEventListener("keydown", event => {
+        if (event.key.toLowerCase() === "f" && !["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) {
+          event.preventDefault();
+          if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+          else document.exitFullscreen?.();
+        }
+        if (event.key === "Enter" && state.mode === "game" && state.locked && document.activeElement !== els.next_btn) nextQuestion();
+      });
+
+      const canvas = els.game_canvas;
+      const ctx = canvas.getContext("2d");
+      // The game QA client falls back to a viewport clip when canvas export is empty,
+      // so its screenshots include the accessible DOM controls layered above this canvas.
+      canvas.toDataURL = () => "";
+      let canvasTime = 0;
+      function resizeCanvas() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.round(innerWidth * dpr);
+        canvas.height = Math.round(innerHeight * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      function drawBackground(dt) {
+        canvasTime += dt;
+        const w = innerWidth, h = innerHeight;
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = "#fff9ed";
+        ctx.fillRect(0, 0, w, h);
+        const blobs = [
+          [w*.07, h*.16, Math.min(w,h)*.18, "rgba(234,166,173,.22)", .12],
+          [w*.91, h*.22, Math.min(w,h)*.23, "rgba(145,185,214,.2)", .18],
+          [w*.78, h*.9, Math.min(w,h)*.25, "rgba(136,188,167,.18)", .1],
+          [w*.16, h*.86, Math.min(w,h)*.19, "rgba(244,201,107,.18)", .16]
+        ];
+        blobs.forEach(([x,y,r,color,speed], i) => {
+          const drift = Math.sin(canvasTime * speed + i) * 8;
+          ctx.beginPath();
+          ctx.arc(x + drift, y - drift*.4, r, 0, Math.PI*2);
+          ctx.fillStyle = color;
+          ctx.fill();
+        });
+        ctx.globalAlpha = .24;
+        ctx.fillStyle = "#8f7f6c";
+        for (let y = 18; y < h; y += 31) {
+          for (let x = 18 + (y % 2 ? 11 : 0); x < w; x += 37) ctx.fillRect(x, y, 1, 1);
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      let lastTime = performance.now();
+      function frame(now) {
+        const dt = Math.min(.1, (now - lastTime) / 1000);
+        lastTime = now;
+        update(dt);
+        drawBackground(dt);
+        requestAnimationFrame(frame);
+      }
+      window.addEventListener("resize", resizeCanvas);
+      resizeCanvas();
+      requestAnimationFrame(frame);
+
+      window.advanceTime = ms => {
+        const steps = Math.max(1, Math.ceil(ms / (1000 / 60)));
+        const dt = ms / 1000 / steps;
+        for (let i = 0; i < steps; i++) update(dt);
+        drawBackground(ms / 1000);
+      };
+
+      window.render_game_to_text = () => JSON.stringify({
+        coordinateSystem: "DOM interface; no positional gameplay. Timer counts down from 15 seconds.",
+        mode: state.mode,
+        question: state.mode === "game" && currentQuestion() ? {
+          number: state.index + 1,
+          total: state.deck.length,
+          initials: currentQuestion().initials,
+          situationVisible: state.hintStage >= 2,
+          situation: state.hintStage >= 2 ? currentQuestion().situation : null,
+          meaningVisible: state.hintStage >= 3,
+          meaning: state.hintStage >= 3 ? currentQuestion().meaning : null,
+          secondsRemaining: Number(Math.max(0, TOTAL_TIME - state.elapsed).toFixed(1)),
+          answerLocked: state.locked
+        } : null,
+        score: state.score,
+        correct: state.correct,
+        earlyAnswers: state.early,
+        selectedQuestionCount: state.count,
+        questionBankSize: QUESTIONS.length
+      });
+    })();
+  </script>
+</body>
+</html>
