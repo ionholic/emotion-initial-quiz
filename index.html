@@ -166,6 +166,26 @@
     .primary-btn:hover { transform: translateY(-2px); box-shadow: 0 11px 0 #c95c4c, 0 21px 30px rgba(158, 67, 52, .2); }
     .primary-btn:active { transform: translateY(6px); box-shadow: 0 3px 0 #c95c4c; }
 
+    .quiz-series {
+      grid-column: 1 / -1;
+      margin-top: clamp(46px, 7vw, 78px);
+      padding-top: 24px;
+      border-top: 1px solid rgba(104, 90, 75, .18);
+    }
+    .series-head { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 14px; }
+    .series-head p { margin: 0; color: var(--coral-dark); font-size: 13px; font-weight: 900; letter-spacing: .1em; }
+    .series-head h2 { margin: 5px 0 0; font-size: clamp(22px, 3vw, 30px); letter-spacing: -.05em; }
+    .series-head span { color: var(--muted); font-size: 14px; }
+    .series-list { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); border-radius: 22px; overflow: hidden; background: rgba(255,255,255,.5); }
+    .series-item { min-height: 76px; padding: 16px 18px; border: 0; border-right: 1px solid var(--line); background: transparent; color: var(--ink); text-decoration: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; font-weight: 900; }
+    .series-item:last-child { border-right: 0; }
+    a.series-item { transition: background .18s ease, color .18s ease; }
+    a.series-item:hover { background: white; color: var(--coral-dark); }
+    .series-item small { color: var(--muted); font-size: 11px; font-weight: 800; }
+    .series-item.active { background: var(--ink); color: white; }
+    .series-item.active small { color: rgba(255,255,255,.72); }
+    .series-item.soon { color: #9b948c; cursor: default; }
+
     .how-it-works {
       position: relative;
       padding: 34px 30px 30px;
@@ -402,6 +422,12 @@
       h1 { font-size: clamp(52px, 17vw, 78px); }
       .intro-copy { font-size: 17px; margin-top: 20px; }
       .how-it-works { transform: none; padding: 30px 24px 25px; }
+      .series-head { align-items: start; }
+      .series-head > span { display: none; }
+      .series-list { grid-template-columns: 1fr 1fr; }
+      .series-item { min-height: 68px; border-bottom: 1px solid var(--line); }
+      .series-item:nth-child(2) { border-right: 0; }
+      .series-item:nth-child(n+3) { border-bottom: 0; }
       .game-shell { border-radius: 27px; }
       .game-head { padding: 16px 18px; gap: 8px; }
       .timer { width: 62px; height: 62px; }
@@ -468,6 +494,16 @@
           <div class="hint-step"><span class="step-number">5</span><div><strong>뜻 힌트</strong><p>단어의 의미까지 보여줘요.</p></div></div>
           <p class="micro-help">같은 초성은 1단계에서 여러 정답 인정 · Enter로 제출 · F로 전체 화면</p>
         </aside>
+
+        <nav class="quiz-series" aria-label="다른 초성퀴즈">
+          <div class="series-head"><div><p>QUIZ SERIES</p><h2>다른 초성퀴즈도 해볼까요?</h2></div><span>하나씩 새롭게 열려요</span></div>
+          <div class="series-list">
+            <span class="series-item active" aria-current="page">감정 단어 <small>플레이 중</small></span>
+            <a class="series-item" href="./snacks/">과자 이름 <small>바로 하기 →</small></a>
+            <span class="series-item soon" aria-disabled="true">아이스크림 <small>준비 중</small></span>
+            <span class="series-item soon" aria-disabled="true">동물 <small>준비 중</small></span>
+          </div>
+        </nav>
       </div>
     </section>
 
