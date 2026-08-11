@@ -5,7 +5,7 @@
 ## 플레이
 
 - [감정 단어 맞히기](https://ionholic.github.io/emotion-initial-quiz/): 감정 단어 90문제
-- [과자 이름 맞히기](https://ionholic.github.io/emotion-initial-quiz/snacks/): 과자 이름 30문제
+- [과자 이름 맞히기](https://ionholic.github.io/emotion-initial-quiz/snacks/): 과자 이름 60문제, 오답 재도전 지원
 - 아이스크림 이름 맞히기: 준비 중
 - 동물 맞히기: 준비 중
 
