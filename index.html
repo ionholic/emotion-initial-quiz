@@ -382,6 +382,7 @@
     .submit-btn { min-width: 122px; box-shadow: 0 7px 0 #c95c4c; }
     .submit-btn:active { box-shadow: 0 2px 0 #c95c4c; }
     .answer-note { margin: 12px 2px 0; min-height: 22px; color: var(--muted); font-size: 13px; }
+    .answer-note[data-kind="typo"] { color: #a85b31; font-weight: 800; }
 
     .feedback {
       display: none;
@@ -635,7 +636,7 @@
         emotion("즐거워", "ㅈㄱㅇ", "친구들과 재미있는 놀이를 했어.", "재미있는 일로 마음이 밝아지고 웃음이 나는 느낌이에요.", ["즐겁다", "즐거워요", "즐거움"]),
         emotion("반가워", "ㅂㄱㅇ", "오랫동안 만나지 못한 친구를 다시 만났어.", "보고 싶던 사람을 만나 마음이 기쁘고 가까이 가고 싶은 느낌이에요.", ["반갑다", "반가워요", "반가움"]),
         emotion("궁금해", "ㄱㄱㅎ", "포장된 상자 안에 무엇이 있는지 알고 싶어.", "모르는 것을 더 알아보고 싶은 마음이에요.", ["궁금하다", "궁금해요", "궁금함"]),
-        emotion("놀랐어", "ㄴㄹㅇㅆ", "뒤에서 갑자기 친구가 내 이름을 불렀어.", "생각하지 못한 일이 생겨 몸과 마음이 순간 크게 반응한 느낌이에요.", ["놀라다", "놀랐어요", "놀라워", "놀람"]),
+        emotion("놀랐어", "ㄴㄹㅇ", "뒤에서 갑자기 친구가 내 이름을 불렀어.", "생각하지 못한 일이 생겨 몸과 마음이 순간 크게 반응한 느낌이에요.", ["놀라다", "놀랐어요", "놀라워", "놀람"]),
         emotion("당황해", "ㄷㅎㅎ", "발표하려고 나갔는데 준비한 말이 생각나지 않았어.", "예상하지 못한 일로 무엇을 해야 할지 바로 떠오르지 않는 느낌이에요.", ["당황하다", "당황해요", "당황"]),
         emotion("떨려", "ㄸㄹ", "많은 사람 앞에서 처음으로 발표하게 되었어.", "중요한 일을 앞두고 긴장이나 기대 때문에 몸과 마음이 흔들리는 느낌이에요.", ["떨리다", "떨려요", "떨림"]),
         emotion("외로워", "ㅇㄹㅇ", "쉬는 시간에 함께 놀 친구가 보이지 않았어.", "함께할 사람이 없다고 느껴 마음 한쪽이 비어 있는 느낌이에요.", ["외롭다", "외로워요", "외로움"]),
@@ -656,7 +657,7 @@
         emotion("허전해", "ㅎㅈㅎ", "즐겁게 놀던 친구들이 모두 집으로 돌아갔어.", "곁에 있던 것이 사라져 마음이 빈 것 같은 느낌이에요.", ["허전하다", "허전해요", "허전함"]),
         emotion("기대돼", "ㄱㄷㄷ", "다음 주에 좋아하는 체험학습을 가기로 했어.", "앞으로 좋은 일이 생길 것 같아 기다려지는 마음이에요.", ["기대되다", "기대돼요", "기대"]),
         emotion("만족해", "ㅁㅈㅎ", "내가 만든 작품이 생각했던 모습대로 완성됐어.", "결과가 바랐던 것과 잘 맞아 마음에 드는 느낌이에요.", ["만족하다", "만족해요", "만족"]),
-        emotion("감동했어", "ㄱㄷㅎㅆ", "친구들이 나를 위해 깜짝 편지를 써 주었어.", "따뜻하거나 훌륭한 일을 만나 마음이 크게 움직인 느낌이에요.", ["감동하다", "감동했어요", "감동해", "감동"]),
+        emotion("감동했어", "ㄱㄷㅎㅇ", "친구들이 나를 위해 깜짝 편지를 써 주었어.", "따뜻하거나 훌륭한 일을 만나 마음이 크게 움직인 느낌이에요.", ["감동하다", "감동했어요", "감동해", "감동"]),
         emotion("뭉클해", "ㅁㅋㅎ", "가족이 나를 응원하는 모습을 보니 가슴이 따뜻해졌어.", "따뜻한 일로 가슴이 차오르고 눈물이 날 것 같은 느낌이에요.", ["뭉클하다", "뭉클해요", "뭉클함"]),
         emotion("상쾌해", "ㅅㅋㅎ", "아침에 맑은 공기를 마시며 산책했어.", "몸과 마음이 맑고 시원해진 느낌이에요.", ["상쾌하다", "상쾌해요", "상쾌함"]),
         emotion("그리워", "ㄱㄹㅇ", "멀리 이사 간 친구가 자꾸 생각나.", "보고 싶은 사람이나 지난때를 떠올리며 다시 만나고 싶은 마음이에요.", ["그립다", "그리워요", "그리움"]),
@@ -666,7 +667,7 @@
         emotion("대견해", "ㄷㄱㅎ", "포기하지 않고 끝까지 노력한 나를 돌아보았어.", "어려운 일을 해낸 모습이 기특하고 자랑스러운 마음이에요.", ["대견하다", "대견해요", "대견함"]),
         emotion("으쓱해", "ㅇㅆㅎ", "친구들이 내가 만든 작품을 칭찬해 주었어.", "잘한 일을 인정받아 어깨가 올라가는 듯 기분 좋은 느낌이에요.", ["으쓱하다", "으쓱해요", "으쓱"]),
         emotion("용기 나", "ㅇㄱㄴ", "친구의 응원을 듣고 다시 도전하고 싶어졌어.", "무섭거나 어려워도 해 보려는 힘이 마음에서 생기는 느낌이에요.", ["용기나다", "용기나요", "용기가나", "용기가나요"]),
-        emotion("자신 있어", "ㅈㅅㅇㅆ", "열심히 연습한 발표를 잘할 수 있을 것 같아.", "내가 해낼 수 있다고 믿는 든든한 마음이에요.", ["자신있어", "자신있다", "자신있어요", "자신감있어"]),
+        emotion("자신 있어", "ㅈㅅㅇㅇ", "열심히 연습한 발표를 잘할 수 있을 것 같아.", "내가 해낼 수 있다고 믿는 든든한 마음이에요.", ["자신있어", "자신있다", "자신있어요", "자신감있어"]),
         emotion("보람차", "ㅂㄹㅊ", "친구들과 교실을 깨끗하게 정리했어.", "힘을 들인 일이 좋은 결과로 이어져 의미 있고 흐뭇한 느낌이에요.", ["보람차다", "보람차요", "보람"]),
         emotion("희망차", "ㅎㅁㅊ", "실패했지만 다음에는 더 잘할 수 있을 것 같아.", "앞으로 좋은 일이 생기거나 해낼 수 있다고 믿는 밝은 마음이에요.", ["희망차다", "희망차요", "희망"]),
         emotion("활기차", "ㅎㄱㅊ", "푹 자고 일어나 무엇이든 하고 싶은 힘이 생겼어.", "몸과 마음에 힘이 넘치고 움직이고 싶은 느낌이에요.", ["활기차다", "활기차요", "활기"]),
@@ -733,7 +734,8 @@
         sound: true,
         paused: false,
         review: [],
-        reviewMode: false
+        reviewMode: false,
+        typoCount: 0
       };
 
       const TOTAL_TIME = 15;
@@ -752,6 +754,34 @@
 
       function normalize(value) {
         return value.trim().toLowerCase().replace(/[\s.,!?~·'"’“”_-]/g, "");
+      }
+
+      function editDistance(a, b) {
+        const x = [...a], y = [...b], matrix = Array.from({ length: x.length + 1 }, (_, i) => [i]);
+        for (let j = 0; j <= y.length; j++) matrix[0][j] = j;
+        for (let i = 1; i <= x.length; i++) for (let j = 1; j <= y.length; j++) {
+          matrix[i][j] = Math.min(matrix[i - 1][j] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j - 1] + (x[i - 1] === y[j - 1] ? 0 : 1));
+          if (i > 1 && j > 1 && x[i - 1] === y[j - 2] && x[i - 2] === y[j - 1]) matrix[i][j] = Math.min(matrix[i][j], matrix[i - 2][j - 2] + 1);
+        }
+        return matrix[x.length][y.length];
+      }
+
+      function typoFeedback(value, aliases) {
+        const input = normalize(value);
+        const rules = [
+          ["돼", "되", "‘되/돼’ 표기를 확인해 볼까요? ‘돼’는 ‘되어’로 바꾸어도 자연스러울 때 써요."],
+          ["에", "애", "‘에/애’ 소리가 비슷해서 헷갈릴 수 있어요. 글자를 한 번 확인해 볼까요?"],
+          ["웬", "왠", "‘웬/왠’ 표기를 확인해 볼까요? 대부분의 경우에는 ‘웬’을 써요."],
+          ["안", "않", "‘안/않’ 표기를 확인해 볼까요? 문장을 짧게 소리 내어 읽어 보세요."]
+        ];
+        for (const alias of aliases.map(normalize)) {
+          for (const [a, b, message] of rules) {
+            const canonical = text => text.replaceAll(a, "¤").replaceAll(b, "¤");
+            if (input !== alias && canonical(input) === canonical(alias)) return message;
+          }
+          if (input.length >= 2 && alias.length >= 2 && editDistance(input, alias) === 1) return "거의 맞았어요! 한 글자가 빠지거나 바뀐 것 같아요. 입력한 글자를 다시 살펴볼까요?";
+        }
+        return null;
       }
 
       function currentQuestion() { return state.deck[state.index]; }
@@ -804,6 +834,7 @@
         state.paused = false;
         state.review = [];
         state.reviewMode = reviewMode;
+        state.typoCount = 0;
         els.pause_layer.classList.remove("visible");
         els.pause_btn.textContent = "Ⅱ";
         els.question_total.textContent = state.deck.length;
@@ -831,6 +862,7 @@
         els.answer_input.value = "";
         els.answer_input.disabled = false;
         els.answer_note.textContent = "같은 초성의 다른 감정도 1단계에서는 정답으로 인정해요.";
+        els.answer_note.removeAttribute("data-kind");
         els.feedback.className = "feedback";
         els.answer_form.style.display = "grid";
         els.situation_hint.classList.remove("visible");
@@ -905,7 +937,20 @@
         if (isCorrect) {
           finishQuestion(true, false, sameInitialMatch || q);
         } else {
+          const typoMessage = typoFeedback(els.answer_input.value, q.aliases);
+          if (typoMessage) {
+            state.typoCount += 1;
+            els.answer_note.textContent = typoMessage;
+            els.answer_note.dataset.kind = "typo";
+            els.answer_input.classList.remove("shake");
+            void els.answer_input.offsetWidth;
+            els.answer_input.classList.add("shake");
+            els.answer_input.select();
+            playTone("hint");
+            return;
+          }
           state.attempts += 1;
+          els.answer_note.removeAttribute("data-kind");
           els.answer_note.textContent = state.attempts === 1 ? "아직 아니에요. 힌트를 살펴보고 다시 생각해 볼까요?" : "조금만 더 생각해 봐요. 곧 다음 힌트가 열려요.";
           els.answer_input.classList.remove("shake");
           void els.answer_input.offsetWidth;
@@ -1104,9 +1149,11 @@
         score: state.score,
         correct: state.correct,
         earlyAnswers: state.early,
+        attempts: state.attempts,
         paused: state.paused,
         reviewCount: state.review.length,
         reviewMode: state.reviewMode,
+        typoCount: state.typoCount,
         selectedQuestionCount: state.count,
         questionBankSize: QUESTIONS.length
       });
