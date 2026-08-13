@@ -379,6 +379,58 @@
     .answer-input::placeholder { color: #aaa198; font-weight: 600; }
     .answer-input:focus { border-color: var(--sky); box-shadow: 0 0 0 5px rgba(145,185,214,.16); outline: none; }
     .answer-input.shake { animation: shake .34s ease; border-color: var(--pink); }
+    .answer-entry {
+      position: relative;
+      min-width: 0;
+      min-height: 62px;
+      display: grid;
+      align-items: stretch;
+      border-radius: 18px;
+    }
+    .answer-entry .answer-input {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: transparent;
+      caret-color: transparent;
+      opacity: .02;
+      cursor: text;
+    }
+    .answer-entry:focus-within { box-shadow: 0 0 0 5px rgba(145,185,214,.16); }
+    .answer-cells {
+      display: flex;
+      justify-content: center;
+      gap: clamp(5px, 1vw, 10px);
+      min-width: 0;
+      padding: 0 8px;
+      pointer-events: none;
+    }
+    .answer-cell {
+      flex: 1 1 0;
+      min-width: 0;
+      max-width: 58px;
+      height: 62px;
+      display: grid;
+      place-items: center;
+      border: 2px solid #d9cfc2;
+      border-radius: 16px;
+      background: rgba(255,255,255,.78);
+      color: var(--ink);
+      font-size: clamp(21px, 4vw, 28px);
+      font-weight: 950;
+      transition: border-color .18s ease, background .18s ease, transform .18s ease;
+    }
+    .answer-entry:focus-within .answer-cell { border-color: var(--sky); }
+    .answer-cell.filled { background: #fffaf0; border-color: #e1b36d; }
+    .answer-cell.locked { background: #e8f5eb; border-color: var(--mint); color: #356b53; animation: letter-lock .34s ease both; }
+    .answer-cell.miss { animation: cell-shake .34s ease; border-color: var(--pink); }
+    @keyframes letter-lock { from { transform: scale(.8); } 70% { transform: scale(1.08); } }
+    @keyframes cell-shake { 25% { transform: translateX(-5px); } 50% { transform: translateX(4px); } 75% { transform: translateX(-2px); } }
     .submit-btn { min-width: 122px; box-shadow: 0 7px 0 #c95c4c; }
     .submit-btn:active { box-shadow: 0 2px 0 #c95c4c; }
     .answer-note { margin: 12px 2px 0; min-height: 22px; color: var(--muted); font-size: 13px; }
@@ -572,7 +624,10 @@
 
           <form id="answer-form" class="answer-form" autocomplete="off">
             <label class="sr-only" for="answer-input">정답 입력</label>
-            <input id="answer-input" class="answer-input" type="text" inputmode="text" placeholder="감정 단어를 적어 보세요" maxlength="20" enterkeyhint="done">
+            <div id="answer-entry" class="answer-entry">
+              <input id="answer-input" class="answer-input" type="text" inputmode="text" maxlength="20" enterkeyhint="done" aria-describedby="answer-note">
+              <div id="answer-cells" class="answer-cells" aria-hidden="true"></div>
+            </div>
             <button class="primary-btn submit-btn" type="submit">정답 확인</button>
           </form>
           <p id="answer-note" class="answer-note" aria-live="polite">띄어쓰기와 ‘~해요’는 달라도 괜찮아요.</p>
@@ -713,7 +768,7 @@
       const els = Object.fromEntries([
         "start-screen", "game-screen", "result-screen", "start-btn", "question-number", "question-total",
         "timer-ring", "timer-text", "score-text", "consonants", "situation-hint", "meaning-hint",
-        "track-1", "track-2", "track-3", "answer-form", "answer-input", "answer-note", "feedback",
+        "track-1", "track-2", "track-3", "answer-form", "answer-entry", "answer-input", "answer-cells", "answer-note", "feedback",
         "feedback-mark", "feedback-title", "feedback-copy", "next-btn", "final-score", "correct-stat",
         "best-stat", "early-stat", "retry-btn", "home-btn", "review-btn", "review-section", "review-list",
         "result-message", "game-canvas", "bank-count", "pause-btn", "pause-layer", "resume-btn", "question-progress-bar"
@@ -735,7 +790,8 @@
         paused: false,
         review: [],
         reviewMode: false,
-        typoCount: 0
+        typoCount: 0,
+        revealedLetters: []
       };
 
       const TOTAL_TIME = 15;
@@ -785,6 +841,67 @@
       }
 
       function currentQuestion() { return state.deck[state.index]; }
+
+      function targetLetters() {
+        return currentQuestion() ? [...normalize(currentQuestion().answer)] : [];
+      }
+
+      function typedLetters() {
+        const remaining = state.revealedLetters.filter(letter => !letter).length;
+        const letters = [...normalize(els.answer_input.value)].slice(0, remaining);
+        if (els.answer_input.value !== letters.join("")) els.answer_input.value = letters.join("");
+        return letters;
+      }
+
+      function composedAnswer() {
+        const typed = typedLetters();
+        let cursor = 0;
+        return state.revealedLetters.map(letter => letter || typed[cursor++] || "").join("");
+      }
+
+      function inputSlotState() {
+        const typed = typedLetters();
+        let cursor = 0;
+        return state.revealedLetters.map(letter => ({
+          value: letter || typed[cursor++] || "",
+          locked: Boolean(letter)
+        }));
+      }
+
+      function renderAnswerCells(missed = []) {
+        const typed = typedLetters();
+        let cursor = 0;
+        els.answer_cells.replaceChildren();
+        state.revealedLetters.forEach((lockedLetter, index) => {
+          const letter = lockedLetter || typed[cursor++] || "";
+          const cell = document.createElement("span");
+          cell.className = "answer-cell";
+          if (lockedLetter) cell.classList.add("locked");
+          else if (letter) cell.classList.add("filled");
+          if (missed.includes(index)) cell.classList.add("miss");
+          cell.textContent = letter;
+          els.answer_cells.appendChild(cell);
+        });
+        const remaining = state.revealedLetters.filter(letter => !letter).length;
+        els.answer_input.maxLength = 20;
+        els.answer_input.setAttribute("aria-label", `정답 ${state.revealedLetters.length}글자 중 ${state.revealedLetters.length - remaining}글자 확인됨. 빈칸 ${remaining}개 입력`);
+      }
+
+      function keepCorrectLetters(candidate) {
+        const target = targetLetters();
+        const entered = [...candidate];
+        let newlyRevealed = 0;
+        target.forEach((letter, index) => {
+          if (!state.revealedLetters[index] && entered[index] === letter) {
+            state.revealedLetters[index] = letter;
+            newlyRevealed += 1;
+          }
+        });
+        const missed = target.map((_, index) => index).filter(index => !state.revealedLetters[index]);
+        els.answer_input.value = "";
+        renderAnswerCells(missed);
+        return newlyRevealed;
+      }
 
       function setScreen(mode) {
         state.mode = mode;
@@ -856,12 +973,14 @@
         state.locked = false;
         state.hintStage = 1;
         const q = currentQuestion();
+        state.revealedLetters = targetLetters().map(() => "");
         els.question_number.textContent = state.index + 1;
         els.question_progress_bar.style.width = `${((state.index + 1) / state.deck.length) * 100}%`;
         renderInitials(q.initials);
         els.answer_input.value = "";
         els.answer_input.disabled = false;
-        els.answer_note.textContent = "같은 초성의 다른 감정도 1단계에서는 정답으로 인정해요.";
+        renderAnswerCells();
+        els.answer_note.textContent = `${state.revealedLetters.length}글자예요. 맞는 자리는 남겨 드려요.`;
         els.answer_note.removeAttribute("data-kind");
         els.feedback.className = "feedback";
         els.answer_form.style.display = "grid";
@@ -922,9 +1041,9 @@
       function submitAnswer(event) {
         event?.preventDefault();
         if (state.locked || state.paused) return;
-        const value = normalize(els.answer_input.value);
-        if (!value) {
-          els.answer_note.textContent = "먼저 떠오르는 감정 단어를 적어 주세요.";
+        const value = composedAnswer();
+        if (value.length < state.revealedLetters.length) {
+          els.answer_note.textContent = "빈칸을 모두 다시 채운 뒤 정답을 확인해 주세요.";
           els.answer_input.focus();
           return;
         }
@@ -937,25 +1056,21 @@
         if (isCorrect) {
           finishQuestion(true, false, sameInitialMatch || q);
         } else {
-          const typoMessage = typoFeedback(els.answer_input.value, q.aliases);
+          const typoMessage = typoFeedback(value, q.aliases);
+          const newlyRevealed = keepCorrectLetters(value);
+          const revealMessage = newlyRevealed > 0 ? ` 맞는 자리 ${newlyRevealed}글자는 남겨 두었어요. 빈칸은 다시 맞혀 보세요.` : "";
           if (typoMessage) {
             state.typoCount += 1;
-            els.answer_note.textContent = typoMessage;
+            els.answer_note.textContent = typoMessage + revealMessage;
             els.answer_note.dataset.kind = "typo";
-            els.answer_input.classList.remove("shake");
-            void els.answer_input.offsetWidth;
-            els.answer_input.classList.add("shake");
-            els.answer_input.select();
+            els.answer_input.focus();
             playTone("hint");
             return;
           }
           state.attempts += 1;
           els.answer_note.removeAttribute("data-kind");
-          els.answer_note.textContent = state.attempts === 1 ? "아직 아니에요. 힌트를 살펴보고 다시 생각해 볼까요?" : "조금만 더 생각해 봐요. 곧 다음 힌트가 열려요.";
-          els.answer_input.classList.remove("shake");
-          void els.answer_input.offsetWidth;
-          els.answer_input.classList.add("shake");
-          els.answer_input.select();
+          els.answer_note.textContent = revealMessage || (state.attempts === 1 ? "아직 맞는 자리가 없어요. 힌트를 보고 다시 맞혀 볼까요?" : "조금만 더 생각해 봐요. 빈칸을 다시 맞혀 보세요.");
+          els.answer_input.focus();
           playTone("wrong");
         }
       }
@@ -1052,6 +1167,7 @@
         });
       });
       els.start_btn.addEventListener("click", startGame);
+      els.answer_input.addEventListener("input", () => renderAnswerCells());
       els.answer_form.addEventListener("submit", submitAnswer);
       els.next_btn.addEventListener("click", nextQuestion);
       els.retry_btn.addEventListener("click", startGame);
@@ -1144,7 +1260,8 @@
           meaningVisible: state.hintStage >= 3,
           meaning: state.hintStage >= 3 ? currentQuestion().meaning : null,
           secondsRemaining: Number(Math.max(0, TOTAL_TIME - state.elapsed).toFixed(1)),
-          answerLocked: state.locked
+          answerLocked: state.locked,
+          inputSlots: inputSlotState()
         } : null,
         score: state.score,
         correct: state.correct,
