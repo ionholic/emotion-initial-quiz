@@ -179,6 +179,26 @@
       margin-bottom: 14px;
     }
     .round-select span { margin-right: 6px; font-size: 14px; font-weight: 800; color: var(--muted); }
+
+    .mode-select { margin: 0 0 22px; }
+    .mode-select-label { display: block; margin: 0 0 9px; color: var(--muted); font-size: 14px; font-weight: 850; }
+    .mode-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .mode-btn {
+      min-width: 0;
+      padding: 13px 14px;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,253,248,.72);
+      color: var(--ink);
+      text-align: left;
+      cursor: pointer;
+      transition: border-color .18s ease, background .18s ease, transform .18s ease;
+    }
+    .mode-btn:hover { transform: translateY(-2px); border-color: rgba(54,93,85,.42); }
+    .mode-btn.selected { border-color: var(--forest); background: #edf4ef; box-shadow: 0 5px 0 rgba(54,93,85,.13); }
+    .mode-btn strong { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; color: var(--forest-dark); font-size: 15px; }
+    .mode-btn small { display: block; color: var(--muted); font-size: 11px; line-height: 1.45; }
+    .mode-badge { padding: 3px 7px; border-radius: 999px; background: var(--forest); color: white; font-size: 9px; letter-spacing: .04em; }
     .round-btn {
       min-width: 62px;
       height: 42px;
@@ -362,6 +382,9 @@
     .timer .fill { stroke: var(--coral); stroke-linecap: round; transition: stroke .2s ease; }
     .timer strong { font-size: 23px; letter-spacing: -.04em; }
     .timer small { position: absolute; top: 49px; color: var(--muted); font-size: 9px; font-weight: 800; }
+    .timer.untimed .fill { stroke: var(--forest); stroke-dashoffset: 0 !important; }
+    .timer.untimed strong { color: var(--forest); font-size: 29px; }
+    .timer.untimed small { top: 50px; }
 
     .game-body { padding: clamp(24px, 4vw, 48px); }
     .consonant-zone { text-align: center; }
@@ -447,10 +470,14 @@
     .hint-label { color: var(--muted); font-size: 13px; font-weight: 900; }
     .hint-text { font-size: clamp(16px, 2.2vw, 20px); font-weight: 750; line-height: 1.5; }
     .locked-copy { color: #aaa198; font-size: 14px; font-weight: 600; }
+    .hint-actions { display: flex; justify-content: flex-end; margin-top: 10px; }
+    .hint-btn { min-height: 42px; padding: 0 16px; border: 1px solid rgba(115,175,209,.55); border-radius: 14px; background: #e4f3f8; color: #315f72; font-weight: 900; cursor: pointer; }
+    .hint-btn:hover { background: #d7edf5; }
+    .hint-btn[hidden] { display: none; }
 
     .answer-form {
       display: grid;
-      grid-template-columns: 1fr auto;
+      grid-template-columns: 1fr auto auto;
       gap: 10px;
       margin-top: 20px;
     }
@@ -523,6 +550,9 @@
     @keyframes cell-shake { 25% { transform: translateX(-5px); } 50% { transform: translateX(4px); } 75% { transform: translateX(-2px); } }
     .submit-btn { min-width: 122px; box-shadow: 0 7px 0 #c95749; }
     .submit-btn:active { box-shadow: 0 2px 0 #c95749; }
+    .skip-btn { min-width: 94px; min-height: 62px; padding: 0 16px; border: 2px solid var(--line); border-radius: 18px; background: rgba(255,253,248,.72); color: var(--muted); font-weight: 900; cursor: pointer; }
+    .skip-btn:hover { border-color: var(--sky); color: #315f72; background: #f2f8fa; }
+    .skip-btn[hidden] { display: none; }
     .answer-note { margin: 12px 2px 0; min-height: 22px; color: var(--muted); font-size: 13px; }
     .answer-note[data-kind="typo"] { color: #a85b31; font-weight: 800; }
 
@@ -539,8 +569,10 @@
     }
     .feedback.visible { display: grid; }
     .feedback.timeout { background: #f8eee9; }
+    .feedback.skipped { background: #edf5f7; }
     .feedback-mark { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: var(--mint); color: white; font-size: 24px; font-weight: 950; }
     .feedback.timeout .feedback-mark { background: var(--pink); }
+    .feedback.skipped .feedback-mark { background: var(--sky); }
     .feedback strong { display: block; margin-bottom: 3px; font-size: 20px; }
     .feedback p { margin: 0; color: var(--muted); font-size: 13px; }
     .next-btn { min-height: 48px; border: 0; border-radius: 14px; padding: 0 18px; background: var(--forest); color: white; font-weight: 900; cursor: pointer; }
@@ -604,6 +636,9 @@
       .hint-track { margin-top: 12px; }
       .hint-line { grid-template-columns: 64px 1fr; padding-inline: 10px; }
       .answer-form { grid-template-columns: 1fr; }
+      .answer-entry { grid-column: 1 / -1; }
+      .answer-form .submit-btn, .answer-form .skip-btn { width: 100%; }
+      .answer-form { grid-template-columns: 1fr 1fr; }
       .submit-btn { width: 100%; }
       .feedback { grid-template-columns: auto 1fr; }
       .feedback .next-btn { grid-column: 1 / -1; width: 100%; }
@@ -647,6 +682,13 @@
           <p class="eyebrow">감정 단어 초성 퀴즈</p>
           <h1 id="game-title">마음 초성<span>탐험대</span></h1>
           <p class="intro-copy"><strong id="bank-count">90</strong>가지 감정 단어를 관찰하고, 상황과 뜻을 연결해 마음의 이름을 찾아보세요. 교재에서 배운 감정 어휘를 놀이로 다시 만나 봐요.</p>
+          <div class="mode-select" aria-labelledby="mode-select-label">
+            <span id="mode-select-label" class="mode-select-label">게임 모드</span>
+            <div class="mode-options">
+              <button class="mode-btn selected" type="button" data-game-mode="untimed" aria-pressed="true"><strong>차근차근 모드 <span class="mode-badge">기본</span></strong><small>시간초과 없이 힌트를 직접 열고 넘어갈 수 있어요.</small></button>
+              <button class="mode-btn" type="button" data-game-mode="timed" aria-pressed="false"><strong>시간 도전 모드</strong><small>15초 동안 자동 힌트를 보며 빠르게 맞혀요.</small></button>
+            </div>
+          </div>
           <div class="round-select" aria-label="문제 수 선택">
             <span>문제 수</span>
             <button class="round-btn" type="button" data-count="5">5개</button>
@@ -662,10 +704,10 @@
             <figcaption class="hero-caption">오늘 내 마음과 닮은 감정 단어도 찾아볼까요?</figcaption>
           </figure>
           <aside class="how-it-works" aria-label="게임 방법">
-            <h2>시간이 흐를수록 생각의 길이 열려요</h2>
-            <div class="hint-step"><span class="step-number">15</span><div><strong>1. 초성 관찰</strong><p>글자의 첫소리를 자세히 살펴봐요.</p></div></div>
-            <div class="hint-step"><span class="step-number">10</span><div><strong>2. 상황 연결</strong><p>언제 느끼는 마음인지 떠올려요.</p></div></div>
-            <div class="hint-step"><span class="step-number">5</span><div><strong>3. 뜻 이해</strong><p>단어의 의미까지 확인해요.</p></div></div>
+            <h2>내 속도에 맞춰 생각의 길을 열어요</h2>
+            <div class="hint-step"><span class="step-number">1</span><div><strong>초성 관찰</strong><p>시간 제한 없이 글자의 첫소리를 살펴봐요.</p></div></div>
+            <div class="hint-step"><span class="step-number">2</span><div><strong>상황 연결</strong><p>힌트 버튼 또는 시간 도전의 자동 힌트로 열어요.</p></div></div>
+            <div class="hint-step"><span class="step-number">3</span><div><strong>뜻 이해</strong><p>어렵다면 뜻까지 보고, 원하면 다음 문제로 넘어가요.</p></div></div>
             <p class="micro-help">같은 초성은 1단계에서 여러 정답 인정 · Enter 제출 · P 일시정지 · F 전체 화면</p>
           </aside>
         </div>
@@ -689,15 +731,15 @@
       </div>
 
       <div class="game-shell">
-        <div id="pause-layer" class="pause-layer" aria-live="polite"><div><strong>잠깐 쉬는 중</strong><p>시간도 함께 멈췄어요.</p><button id="resume-btn" class="primary-btn" type="button">계속하기</button></div></div>
+        <div id="pause-layer" class="pause-layer" aria-live="polite"><div><strong>잠깐 쉬는 중</strong><p id="pause-copy">게임을 잠시 멈췄어요.</p><button id="resume-btn" class="primary-btn" type="button">계속하기</button></div></div>
         <header class="game-head">
           <div class="progress-label"><strong id="question-number">1</strong> / <span id="question-total">10</span> 문제</div>
-          <div class="timer" aria-label="남은 시간">
+          <div id="timer-display" class="timer untimed" aria-label="시간 제한 없음">
             <svg viewBox="0 0 80 80" aria-hidden="true">
               <circle class="track" cx="40" cy="40" r="33"></circle>
               <circle id="timer-ring" class="fill" cx="40" cy="40" r="33"></circle>
             </svg>
-            <strong id="timer-text">15</strong><small>초</small>
+            <strong id="timer-text">∞</strong><small id="timer-unit">천천히</small>
           </div>
           <div class="score">점수<strong id="score-text">0</strong></div>
         </header>
@@ -726,6 +768,7 @@
               <span class="hint-text"><span class="locked-copy">5초가 되면 열려요</span></span>
             </div>
           </div>
+          <div class="hint-actions"><button id="hint-btn" class="hint-btn" type="button">상황 힌트 보기</button></div>
 
           <form id="answer-form" class="answer-form" autocomplete="off">
             <label class="sr-only" for="answer-input">정답 입력</label>
@@ -734,6 +777,7 @@
               <div id="answer-cells" class="answer-cells" aria-hidden="true"></div>
             </div>
             <button class="primary-btn submit-btn" type="submit">정답 확인</button>
+            <button id="skip-btn" class="skip-btn" type="button">넘어가기</button>
           </form>
           <p id="answer-note" class="answer-note" aria-live="polite">띄어쓰기와 ‘~해요’는 달라도 괜찮아요.</p>
 
@@ -763,7 +807,7 @@
           <button id="retry-btn" class="primary-btn" type="button">한 번 더 하기</button>
           <button id="home-btn" class="secondary-btn" type="button">처음으로</button>
         </div>
-        <section id="review-section" class="review-section" hidden><h3>다시 보면 좋은 문제</h3><p>헷갈렸거나 시간이 끝난 단어를 모았어요.</p><div id="review-list" class="review-list"></div></section>
+        <section id="review-section" class="review-section" hidden><h3>다시 보면 좋은 문제</h3><p>헷갈렸거나 넘어간 단어를 모았어요.</p><div id="review-list" class="review-list"></div></section>
       </div>
     </section>
   </main>
@@ -873,15 +917,16 @@
 
       const els = Object.fromEntries([
         "start-screen", "game-screen", "result-screen", "start-btn", "question-number", "question-total",
-        "timer-ring", "timer-text", "score-text", "consonants", "situation-hint", "meaning-hint",
+        "timer-display", "timer-ring", "timer-text", "timer-unit", "score-text", "consonants", "situation-hint", "meaning-hint",
         "track-1", "track-2", "track-3", "answer-form", "answer-entry", "answer-input", "answer-cells", "answer-note", "feedback",
-        "feedback-mark", "feedback-title", "feedback-copy", "next-btn", "final-score", "correct-stat",
+        "hint-btn", "skip-btn", "feedback-mark", "feedback-title", "feedback-copy", "next-btn", "final-score", "correct-stat",
         "best-stat", "early-stat", "retry-btn", "home-btn", "review-btn", "review-section", "review-list",
-        "result-message", "game-canvas", "bank-count", "pause-btn", "pause-layer", "resume-btn", "question-progress-bar"
+        "result-message", "game-canvas", "bank-count", "pause-btn", "pause-layer", "pause-copy", "resume-btn", "question-progress-bar"
       ].map(id => [id.replaceAll("-", "_"), document.getElementById(id)]));
 
       const state = {
         mode: "start",
+        gameMode: "untimed",
         count: 10,
         deck: [],
         index: 0,
@@ -1090,10 +1135,18 @@
         els.answer_note.removeAttribute("data-kind");
         els.feedback.className = "feedback";
         els.answer_form.style.display = "grid";
+        const timed = state.gameMode === "timed";
+        els.timer_display.classList.toggle("untimed", !timed);
+        els.timer_display.setAttribute("aria-label", timed ? "남은 시간" : "시간 제한 없음");
+        els.timer_unit.textContent = timed ? "초" : "천천히";
+        els.pause_copy.textContent = timed ? "시간도 함께 멈췄어요." : "게임을 잠시 멈췄어요.";
+        els.hint_btn.hidden = timed;
+        els.hint_btn.textContent = "상황 힌트 보기";
+        els.skip_btn.hidden = timed;
         els.situation_hint.classList.remove("visible");
         els.meaning_hint.classList.remove("visible");
-        els.situation_hint.querySelector(".hint-text").innerHTML = '<span class="locked-copy">10초가 되면 열려요</span>';
-        els.meaning_hint.querySelector(".hint-text").innerHTML = '<span class="locked-copy">5초가 되면 열려요</span>';
+        els.situation_hint.querySelector(".hint-text").innerHTML = `<span class="locked-copy">${timed ? "10초가 되면 열려요" : "힌트 버튼을 누르면 열려요"}</span>`;
+        els.meaning_hint.querySelector(".hint-text").innerHTML = `<span class="locked-copy">${timed ? "5초가 되면 열려요" : "상황을 본 뒤 열 수 있어요"}</span>`;
         els.track_1.classList.add("on");
         els.track_2.classList.remove("on");
         els.track_3.classList.remove("on");
@@ -1102,6 +1155,12 @@
       }
 
       function updateTimer() {
+        if (state.gameMode === "untimed") {
+          els.timer_text.textContent = "∞";
+          els.timer_ring.style.strokeDashoffset = "0";
+          els.timer_ring.style.stroke = "#365d55";
+          return;
+        }
         const remaining = Math.max(0, TOTAL_TIME - state.elapsed);
         const whole = Math.ceil(remaining);
         els.timer_text.textContent = whole;
@@ -1118,18 +1177,21 @@
           els.situation_hint.querySelector(".hint-text").textContent = q.situation;
           els.situation_hint.classList.add("visible");
           if (!state.locked) els.answer_note.textContent = "이제 상황에 가장 알맞은 감정 단어를 적어 주세요.";
+          if (state.gameMode === "untimed") els.hint_btn.textContent = "뜻 힌트 보기";
         }
         if (stage >= 3) {
           els.track_3.classList.add("on");
           els.meaning_hint.querySelector(".hint-text").textContent = q.meaning;
           els.meaning_hint.classList.add("visible");
           if (!state.locked) els.answer_note.textContent = "상황과 뜻을 함께 살펴보면 정답을 찾을 수 있어요.";
+          if (state.gameMode === "untimed") els.hint_btn.hidden = true;
         }
         playTone("hint");
       }
 
       function update(dt) {
         if (state.mode !== "game" || state.locked || state.paused) return;
+        if (state.gameMode !== "timed") return;
         const previous = state.elapsed;
         state.elapsed = Math.min(TOTAL_TIME, state.elapsed + dt);
         if (previous < 5 && state.elapsed >= 5) revealStage(2);
@@ -1140,7 +1202,7 @@
 
       function pointsForStage() {
         const base = state.hintStage === 1 ? 100 : state.hintStage === 2 ? 70 : 40;
-        const bonus = Math.max(0, Math.ceil(TOTAL_TIME - state.elapsed));
+        const bonus = state.gameMode === "timed" ? Math.max(0, Math.ceil(TOTAL_TIME - state.elapsed)) : 0;
         return Math.max(10, base + bonus - state.attempts * 5);
       }
 
@@ -1181,11 +1243,11 @@
         }
       }
 
-      function finishQuestion(correct, timedOut, matchedQuestion = null) {
+      function finishQuestion(correct, timedOut, matchedQuestion = null, skipped = false) {
         if (state.locked) return;
         state.locked = true;
         const q = currentQuestion();
-        if ((timedOut || state.attempts > 0) && !state.review.includes(q)) state.review.push(q);
+        if ((timedOut || skipped || state.attempts > 0) && !state.review.includes(q)) state.review.push(q);
         let gained = 0;
         if (correct) {
           gained = pointsForStage();
@@ -1202,6 +1264,12 @@
           }
           els.feedback.className = "feedback visible";
           playTone("correct");
+        } else if (skipped) {
+          els.feedback_mark.textContent = "→";
+          els.feedback_title.textContent = "이번 문제는 넘어갈게요";
+          els.feedback_copy.textContent = `정답은 ‘${q.answer}’이에요. 복습 목록에 담아 둘게요.`;
+          els.feedback.className = "feedback visible skipped";
+          playTone("hint");
         } else {
           els.feedback_mark.textContent = "!";
           els.feedback_title.textContent = `정답은 ‘${q.answer}’`;
@@ -1224,8 +1292,18 @@
         else loadQuestion();
       }
 
+      function revealNextHint() {
+        if (state.mode !== "game" || state.locked || state.paused || state.gameMode !== "untimed") return;
+        revealStage(Math.min(3, state.hintStage + 1));
+      }
+
+      function skipQuestion() {
+        if (state.mode !== "game" || state.locked || state.paused || state.gameMode !== "untimed") return;
+        finishQuestion(false, false, null, true);
+      }
+
       function showResult() {
-        const storageKey = `emotionInitialQuizBest-${state.deck.length}`;
+        const storageKey = `emotionInitialQuizBest-${state.gameMode}-${state.deck.length}`;
         let previousBest = 0;
         try { previousBest = Number(localStorage.getItem(storageKey)) || 0; } catch (_) {}
         const best = Math.max(previousBest, state.score);
@@ -1262,6 +1340,16 @@
           document.querySelectorAll(".round-btn").forEach(b => b.classList.toggle("selected", b === btn));
         });
       });
+      document.querySelectorAll(".mode-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.gameMode = btn.dataset.gameMode;
+          document.querySelectorAll(".mode-btn").forEach(modeBtn => {
+            const selected = modeBtn === btn;
+            modeBtn.classList.toggle("selected", selected);
+            modeBtn.setAttribute("aria-pressed", String(selected));
+          });
+        });
+      });
       document.querySelectorAll(".sound-toggle").forEach(btn => {
         btn.addEventListener("click", () => {
           state.sound = !state.sound;
@@ -1275,6 +1363,8 @@
       els.start_btn.addEventListener("click", startGame);
       els.answer_input.addEventListener("input", () => renderAnswerCells());
       els.answer_form.addEventListener("submit", submitAnswer);
+      els.hint_btn.addEventListener("click", revealNextHint);
+      els.skip_btn.addEventListener("click", skipQuestion);
       els.next_btn.addEventListener("click", nextQuestion);
       els.retry_btn.addEventListener("click", startGame);
       els.review_btn.addEventListener("click", startReview);
@@ -1355,8 +1445,11 @@
       };
 
       window.render_game_to_text = () => JSON.stringify({
-        coordinateSystem: "DOM interface; no positional gameplay. Timer counts down from 15 seconds.",
+        coordinateSystem: state.gameMode === "timed" ? "DOM interface; no positional gameplay. Timer counts down from 15 seconds." : "DOM interface; no positional gameplay. No time limit; hints open manually.",
         mode: state.mode,
+        gameMode: state.gameMode,
+        timeLimited: state.gameMode === "timed",
+        canSkip: state.mode === "game" && state.gameMode === "untimed" && !state.locked,
         question: state.mode === "game" && currentQuestion() ? {
           number: state.index + 1,
           total: state.deck.length,
@@ -1365,7 +1458,7 @@
           situation: state.hintStage >= 2 ? currentQuestion().situation : null,
           meaningVisible: state.hintStage >= 3,
           meaning: state.hintStage >= 3 ? currentQuestion().meaning : null,
-          secondsRemaining: Number(Math.max(0, TOTAL_TIME - state.elapsed).toFixed(1)),
+          secondsRemaining: state.gameMode === "timed" ? Number(Math.max(0, TOTAL_TIME - state.elapsed).toFixed(1)) : null,
           answerLocked: state.locked,
           inputSlots: inputSlotState()
         } : null,
