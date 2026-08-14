@@ -175,6 +175,7 @@
     .round-select {
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
       gap: 10px;
       margin-bottom: 14px;
     }
@@ -209,6 +210,7 @@
       font-weight: 900;
       cursor: pointer;
     }
+    .round-btn[data-count="all"] { min-width: 104px; }
     .round-btn.selected { border-color: var(--forest); background: var(--forest); color: white; }
 
     .primary-btn {
@@ -691,9 +693,10 @@
           </div>
           <div class="round-select" aria-label="문제 수 선택">
             <span>문제 수</span>
-            <button class="round-btn" type="button" data-count="5">5개</button>
-            <button class="round-btn selected" type="button" data-count="10">10개</button>
-            <button class="round-btn" type="button" data-count="20">20개</button>
+            <button class="round-btn selected" type="button" data-count="20">20개</button>
+            <button class="round-btn" type="button" data-count="30">30개</button>
+            <button class="round-btn" type="button" data-count="50">50개</button>
+            <button class="round-btn" type="button" data-count="all">모든 단어</button>
           </div>
           <button id="start-btn" class="primary-btn" type="button">탐험 시작하기 <span aria-hidden="true">→</span></button>
         </div>
@@ -927,7 +930,7 @@
       const state = {
         mode: "start",
         gameMode: "untimed",
-        count: 10,
+        count: 20,
         deck: [],
         index: 0,
         elapsed: 0,
@@ -1336,7 +1339,7 @@
 
       document.querySelectorAll(".round-btn").forEach(btn => {
         btn.addEventListener("click", () => {
-          state.count = Number(btn.dataset.count);
+          state.count = btn.dataset.count === "all" ? QUESTIONS.length : Number(btn.dataset.count);
           document.querySelectorAll(".round-btn").forEach(b => b.classList.toggle("selected", b === btn));
         });
       });
