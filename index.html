@@ -3,22 +3,37 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#fff9ed">
+  <meta name="theme-color" content="#fbf6ec">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💭</text></svg>">
   <title>마음 초성 탐험대</title>
   <style>
+    @font-face {
+      font-family: "ONE Mobile POP";
+      src: url("./fonts/ONE-Mobile-POP.ttf") format("truetype");
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "KCC Dodamdodam";
+      src: url("./fonts/KCCDodamdodam.ttf") format("truetype");
+      font-display: swap;
+    }
+
     :root {
-      --ink: #3f3a35;
-      --muted: #766e67;
-      --paper: rgba(255, 252, 244, .9);
-      --line: #ded4c5;
-      --coral: #e97963;
-      --coral-dark: #c95143;
-      --mint: #88bca7;
-      --sky: #91b9d6;
-      --yellow: #f4c96b;
-      --pink: #eaa6ad;
-      --shadow: 0 22px 60px rgba(104, 78, 54, .12);
+      --ink: #263532;
+      --muted: #61706c;
+      --paper: rgba(255, 253, 248, .94);
+      --paper-warm: #fbf6ec;
+      --line: #d8d2c6;
+      --forest: #365d55;
+      --forest-dark: #24423c;
+      --coral: #ef705d;
+      --coral-dark: #c95547;
+      --mint: #77a86d;
+      --sky: #73afd1;
+      --yellow: #f7cd68;
+      --pink: #e68ca0;
+      --violet: #9d8ac0;
+      --shadow: 0 24px 64px rgba(61, 75, 67, .12);
     }
 
     * { box-sizing: border-box; }
@@ -27,7 +42,12 @@
       min-height: 100svh;
       overflow-x: hidden;
       color: var(--ink);
-      background: #fff9ed;
+      background-color: var(--paper-warm);
+      background-image:
+        radial-gradient(circle at 14% 12%, rgba(247,205,104,.17) 0 3px, transparent 4px),
+        radial-gradient(circle at 86% 18%, rgba(115,175,209,.12) 0 4px, transparent 5px),
+        linear-gradient(115deg, rgba(255,255,255,.44), transparent 36%, rgba(239,112,93,.035));
+      background-size: 78px 78px, 112px 112px, auto;
       font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
       word-break: keep-all;
     }
@@ -46,10 +66,12 @@
     }
 
     .app {
-      width: min(1060px, calc(100% - 40px));
+      position: relative;
+      z-index: 1;
+      width: min(1120px, calc(100% - 40px));
       min-height: 100svh;
       margin: 0 auto;
-      padding: 26px 0;
+      padding: 30px 0 44px;
       display: grid;
       align-items: center;
     }
@@ -70,8 +92,10 @@
       align-items: center;
       gap: 10px;
       color: var(--ink);
-      font-weight: 900;
-      letter-spacing: -.04em;
+      font-family: "KCC Dodamdodam", "Pretendard", sans-serif;
+      font-size: 25px;
+      font-weight: 400;
+      letter-spacing: -.02em;
     }
 
     .brand-mark {
@@ -80,10 +104,10 @@
       width: 38px;
       height: 38px;
       border-radius: 46% 54% 50% 50%;
-      background: var(--coral);
+      background: var(--forest);
       color: white;
       transform: rotate(-5deg);
-      box-shadow: inset 0 -4px 0 rgba(129, 53, 39, .11);
+      box-shadow: inset 0 -4px 0 rgba(18, 48, 42, .13);
     }
 
     .icon-btn {
@@ -91,7 +115,7 @@
       height: 44px;
       border: 1px solid rgba(104, 90, 75, .16);
       border-radius: 50%;
-      background: rgba(255, 252, 244, .76);
+      background: rgba(255, 253, 248, .84);
       color: var(--ink);
       cursor: pointer;
       transition: transform .18s ease, background .18s ease;
@@ -101,14 +125,29 @@
 
     .start-layout {
       display: grid;
-      grid-template-columns: minmax(0, 1.15fr) minmax(300px, .85fr);
+      grid-template-columns: minmax(0, .95fr) minmax(380px, 1.05fr);
       align-items: center;
-      gap: clamp(34px, 7vw, 90px);
+      gap: clamp(30px, 5vw, 64px);
     }
+
+    .lesson-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 17px;
+      padding: 8px 13px;
+      border: 1px solid rgba(54,93,85,.16);
+      border-radius: 999px;
+      background: rgba(255,253,248,.78);
+      color: var(--forest);
+      font-size: 13px;
+      font-weight: 900;
+    }
+    .lesson-chip::before { content: "03"; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--forest); color: white; font-size: 11px; }
 
     .eyebrow {
       margin: 0 0 14px;
-      color: var(--coral-dark);
+      color: var(--forest);
       font-size: 14px;
       font-weight: 900;
       letter-spacing: .13em;
@@ -117,17 +156,18 @@
     h1 {
       margin: 0;
       max-width: 650px;
-      font-size: clamp(52px, 8vw, 92px);
-      line-height: .97;
-      letter-spacing: -.08em;
-      font-weight: 950;
+      font-family: "ONE Mobile POP", "Pretendard", sans-serif;
+      font-size: clamp(50px, 7.2vw, 82px);
+      line-height: 1.05;
+      letter-spacing: -.055em;
+      font-weight: 400;
     }
     h1 span { display: block; color: var(--coral); }
 
     .intro-copy {
       max-width: 520px;
       margin: 24px 0 32px;
-      color: var(--muted);
+      color: #53635f;
       font-size: clamp(17px, 2vw, 20px);
       line-height: 1.7;
     }
@@ -144,12 +184,12 @@
       height: 42px;
       border: 1px solid var(--line);
       border-radius: 999px;
-      background: rgba(255,255,255,.55);
+      background: rgba(255,253,248,.72);
       color: var(--muted);
       font-weight: 900;
       cursor: pointer;
     }
-    .round-btn.selected { border-color: var(--ink); background: var(--ink); color: white; }
+    .round-btn.selected { border-color: var(--forest); background: var(--forest); color: white; }
 
     .primary-btn {
       min-height: 58px;
@@ -161,11 +201,40 @@
       font-weight: 900;
       font-size: 18px;
       cursor: pointer;
-      box-shadow: 0 9px 0 #c95c4c, 0 18px 26px rgba(158, 67, 52, .18);
+      box-shadow: 0 8px 0 #c95749, 0 18px 26px rgba(158, 67, 52, .16);
       transition: transform .16s ease, box-shadow .16s ease;
     }
-    .primary-btn:hover { transform: translateY(-2px); box-shadow: 0 11px 0 #c95c4c, 0 21px 30px rgba(158, 67, 52, .2); }
-    .primary-btn:active { transform: translateY(6px); box-shadow: 0 3px 0 #c95c4c; }
+    .primary-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 0 #c95749, 0 21px 30px rgba(158, 67, 52, .18); }
+    .primary-btn:active { transform: translateY(5px); box-shadow: 0 3px 0 #c95749; }
+
+    .start-aside { display: grid; gap: 18px; }
+    .hero-visual {
+      position: relative;
+      margin: 0;
+      overflow: hidden;
+      min-height: 300px;
+      border: 1px solid rgba(54,93,85,.14);
+      border-radius: 52px 52px 24px 52px;
+      background: #fffdf8;
+      box-shadow: var(--shadow);
+    }
+    .hero-visual img { display: block; width: 100%; height: 100%; min-height: 300px; object-fit: cover; object-position: center 51%; }
+    .hero-visual::after { content: ""; position: absolute; inset: 0; box-shadow: inset 0 0 44px rgba(255,253,248,.9); pointer-events: none; }
+    .hero-caption {
+      position: absolute;
+      z-index: 1;
+      left: 22px;
+      bottom: 20px;
+      max-width: 215px;
+      padding: 11px 15px;
+      border-radius: 18px 18px 18px 5px;
+      background: rgba(255,253,248,.93);
+      color: var(--forest-dark);
+      font-family: "KCC Dodamdodam", "Pretendard", sans-serif;
+      font-size: 20px;
+      line-height: 1.25;
+      box-shadow: 0 8px 22px rgba(36,66,60,.10);
+    }
 
     .quiz-series {
       grid-column: 1 / -1;
@@ -189,33 +258,33 @@
 
     .how-it-works {
       position: relative;
-      padding: 34px 30px 30px;
+      padding: 24px 26px 22px;
       border: 1px solid rgba(101, 83, 63, .12);
-      border-radius: 42px 42px 42px 14px;
+      border-radius: 28px 28px 28px 10px;
       background: var(--paper);
       box-shadow: var(--shadow);
-      transform: rotate(1.2deg);
+      transform: rotate(.35deg);
     }
     .how-it-works::before {
       content: "?";
       position: absolute;
-      right: 28px;
-      top: -28px;
+      right: 22px;
+      top: -18px;
       display: grid;
       place-items: center;
-      width: 64px;
-      height: 64px;
+      width: 52px;
+      height: 52px;
       border-radius: 50%;
       background: var(--yellow);
       color: white;
-      font-size: 38px;
+      font-size: 31px;
       font-weight: 950;
       transform: rotate(8deg);
       box-shadow: 0 9px 0 rgba(174, 133, 46, .17);
     }
-    .how-it-works h2 { margin: 0 0 24px; font-size: 20px; letter-spacing: -.04em; }
+    .how-it-works h2 { margin: 0 0 18px; font-family: "KCC Dodamdodam", "Pretendard", sans-serif; font-size: 24px; font-weight: 400; letter-spacing: -.02em; }
     .hint-step { display: grid; grid-template-columns: 46px 1fr; gap: 14px; align-items: start; }
-    .hint-step + .hint-step { margin-top: 21px; }
+    .hint-step + .hint-step { margin-top: 15px; }
     .step-number {
       display: grid;
       place-items: center;
@@ -237,11 +306,28 @@
       position: relative;
       overflow: hidden;
       border: 1px solid rgba(101, 83, 63, .12);
-      border-radius: 36px;
-      background: rgba(255, 252, 244, .91);
+      border-radius: 36px 36px 36px 14px;
+      background: rgba(255, 253, 248, .95);
       box-shadow: var(--shadow);
       backdrop-filter: blur(12px);
     }
+    .game-shell::after, .result-shell::after { content: ""; position: absolute; inset: 12px; border: 1px dashed rgba(54,93,85,.11); border-radius: 26px 26px 26px 9px; pointer-events: none; }
+    .game-shell > *, .result-shell > * { position: relative; z-index: 1; }
+
+    .activity-ribbon {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin: 0 0 18px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      background: #e4f3f8;
+      color: var(--forest-dark);
+      font-size: 13px;
+      font-weight: 850;
+    }
+    .activity-ribbon span:last-child { color: #527f96; font-size: 12px; }
 
     .game-head {
       display: grid;
@@ -279,7 +365,7 @@
 
     .game-body { padding: clamp(24px, 4vw, 48px); }
     .consonant-zone { text-align: center; }
-    .question-kicker { margin: 0 0 9px; color: var(--muted); font-weight: 800; font-size: 14px; }
+    .question-kicker { margin: 0 0 9px; color: var(--forest); font-family: "KCC Dodamdodam", "Pretendard", sans-serif; font-weight: 400; font-size: 23px; }
     .consonants {
       min-height: 122px;
       display: flex;
@@ -289,7 +375,8 @@
       gap: clamp(8px, 1.8vw, 16px);
       color: var(--ink);
       font-size: clamp(52px, 8.5vw, 86px);
-      font-weight: 950;
+      font-family: "ONE Mobile POP", "Pretendard", sans-serif;
+      font-weight: 400;
       line-height: 1;
       letter-spacing: .02em;
     }
@@ -301,7 +388,7 @@
       padding: .09em;
       border: 3px solid rgba(66, 58, 50, .12);
       border-radius: 31% 42% 35% 45%;
-      background: rgba(255,255,255,.52);
+      background: rgba(255,255,255,.74);
       box-shadow: inset 0 -8px 0 rgba(92, 74, 58, .04);
       animation: tile-pop .4s cubic-bezier(.2,.9,.2,1.25) backwards;
     }
@@ -337,7 +424,7 @@
       transition: transform .25s ease, background .25s ease;
     }
     .track-item.on { color: var(--ink); }
-    .track-item.on .track-dot { background: var(--coral); transform: scale(1.14); }
+    .track-item.on .track-dot { background: var(--forest); transform: scale(1.14); }
 
     .hints { display: grid; gap: 10px; min-height: 142px; }
     .hint-line {
@@ -347,13 +434,16 @@
       gap: 14px;
       min-height: 64px;
       padding: 13px 18px;
-      border-top: 1px solid rgba(101,83,63,.12);
+      border: 1px solid rgba(101,83,63,.10);
+      border-left: 5px solid #d9cfc2;
+      border-radius: 15px;
+      background: rgba(255,255,255,.44);
       opacity: .28;
       filter: blur(2px);
       transform: translateY(5px);
       transition: opacity .35s ease, filter .35s ease, transform .35s ease;
     }
-    .hint-line.visible { opacity: 1; filter: none; transform: translateY(0); animation: hint-in .42s ease both; }
+    .hint-line.visible { opacity: 1; filter: none; transform: translateY(0); border-left-color: var(--sky); animation: hint-in .42s ease both; }
     .hint-label { color: var(--muted); font-size: 13px; font-weight: 900; }
     .hint-text { font-size: clamp(16px, 2.2vw, 20px); font-weight: 750; line-height: 1.5; }
     .locked-copy { color: #aaa198; font-size: 14px; font-weight: 600; }
@@ -427,12 +517,12 @@
     }
     .answer-entry:focus-within .answer-cell { border-color: var(--sky); }
     .answer-cell.filled { background: #fffaf0; border-color: #e1b36d; }
-    .answer-cell.locked { background: #e8f5eb; border-color: var(--mint); color: #356b53; animation: letter-lock .34s ease both; }
+    .answer-cell.locked { background: #e9f4e6; border-color: var(--mint); color: #356b53; animation: letter-lock .34s ease both; }
     .answer-cell.miss { animation: cell-shake .34s ease; border-color: var(--pink); }
     @keyframes letter-lock { from { transform: scale(.8); } 70% { transform: scale(1.08); } }
     @keyframes cell-shake { 25% { transform: translateX(-5px); } 50% { transform: translateX(4px); } 75% { transform: translateX(-2px); } }
-    .submit-btn { min-width: 122px; box-shadow: 0 7px 0 #c95c4c; }
-    .submit-btn:active { box-shadow: 0 2px 0 #c95c4c; }
+    .submit-btn { min-width: 122px; box-shadow: 0 7px 0 #c95749; }
+    .submit-btn:active { box-shadow: 0 2px 0 #c95749; }
     .answer-note { margin: 12px 2px 0; min-height: 22px; color: var(--muted); font-size: 13px; }
     .answer-note[data-kind="typo"] { color: #a85b31; font-weight: 800; }
 
@@ -453,11 +543,11 @@
     .feedback.timeout .feedback-mark { background: var(--pink); }
     .feedback strong { display: block; margin-bottom: 3px; font-size: 20px; }
     .feedback p { margin: 0; color: var(--muted); font-size: 13px; }
-    .next-btn { min-height: 48px; border: 0; border-radius: 14px; padding: 0 18px; background: var(--ink); color: white; font-weight: 900; cursor: pointer; }
+    .next-btn { min-height: 48px; border: 0; border-radius: 14px; padding: 0 18px; background: var(--forest); color: white; font-weight: 900; cursor: pointer; }
 
     .result-shell { padding: clamp(32px, 6vw, 70px); text-align: center; }
     .result-badge { width: 94px; height: 94px; display: grid; place-items: center; margin: 0 auto 22px; border-radius: 46% 54% 48% 52%; background: var(--yellow); color: white; font-size: 47px; transform: rotate(-4deg); box-shadow: 0 10px 0 rgba(171,126,36,.16); }
-    .result-shell h2 { margin: 0; font-size: clamp(37px, 6vw, 60px); letter-spacing: -.065em; }
+    .result-shell h2 { margin: 0; font-family: "ONE Mobile POP", "Pretendard", sans-serif; font-weight: 400; font-size: clamp(37px, 6vw, 60px); letter-spacing: -.045em; }
     .result-message { margin: 14px auto 30px; max-width: 520px; color: var(--muted); font-size: 17px; line-height: 1.65; }
     .result-score { margin-bottom: 28px; }
     .result-score strong { display: block; color: var(--coral-dark); font-size: clamp(66px, 11vw, 104px); line-height: 1; letter-spacing: -.07em; }
@@ -467,6 +557,8 @@
     .result-stat strong { display: block; font-size: 25px; }
     .result-stat span { color: var(--muted); font-size: 12px; }
     .result-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+    .reflection-note { max-width: 650px; margin: 0 auto 28px; padding: 15px 18px; border: 1px solid rgba(54,93,85,.14); border-radius: 18px; background: #f1f6ed; color: var(--forest-dark); line-height: 1.55; }
+    .reflection-note strong { font-family: "KCC Dodamdodam", "Pretendard", sans-serif; font-size: 21px; font-weight: 400; }
     .secondary-btn { min-height: 58px; padding: 0 24px; border: 2px solid var(--line); border-radius: 18px; background: transparent; color: var(--ink); font-weight: 900; cursor: pointer; }
     .review-section { max-width: 620px; margin: 34px auto 0; padding-top: 26px; border-top: 1px solid var(--line); text-align: left; }
     .review-section[hidden] { display: none; }
@@ -491,7 +583,11 @@
       .start-layout { grid-template-columns: 1fr; gap: 54px; }
       h1 { font-size: clamp(52px, 17vw, 78px); }
       .intro-copy { font-size: 17px; margin-top: 20px; }
-      .how-it-works { transform: none; padding: 30px 24px 25px; }
+      .start-aside { gap: 14px; }
+      .hero-visual { min-height: 250px; border-radius: 34px 34px 18px 34px; }
+      .hero-visual img { min-height: 250px; }
+      .hero-caption { left: 16px; bottom: 14px; font-size: 18px; }
+      .how-it-works { transform: none; padding: 26px 22px 22px; }
       .series-head { align-items: start; }
       .series-head > span { display: none; }
       .series-list { grid-template-columns: 1fr 1fr; }
@@ -503,6 +599,7 @@
       .timer { width: 62px; height: 62px; }
       .timer small { top: 42px; }
       .game-body { padding: 22px 17px 20px; }
+      .activity-ribbon { align-items: flex-start; flex-direction: column; gap: 3px; }
       .consonants { min-height: 92px; }
       .hint-track { margin-top: 12px; }
       .hint-line { grid-template-columns: 64px 1fr; padding-inline: 10px; }
@@ -546,9 +643,10 @@
 
       <div class="start-layout">
         <div>
+          <div class="lesson-chip">감정 다이어리 · 감정 단어 활동</div>
           <p class="eyebrow">감정 단어 초성 퀴즈</p>
           <h1 id="game-title">마음 초성<span>탐험대</span></h1>
-          <p class="intro-copy"><strong id="bank-count">90</strong>가지 감정 단어의 초성을 보고 마음의 이름을 찾아보세요. 시간이 흐르면 상황과 뜻이 차례로 나타나요.</p>
+          <p class="intro-copy"><strong id="bank-count">90</strong>가지 감정 단어를 관찰하고, 상황과 뜻을 연결해 마음의 이름을 찾아보세요. 교재에서 배운 감정 어휘를 놀이로 다시 만나 봐요.</p>
           <div class="round-select" aria-label="문제 수 선택">
             <span>문제 수</span>
             <button class="round-btn" type="button" data-count="5">5개</button>
@@ -558,13 +656,19 @@
           <button id="start-btn" class="primary-btn" type="button">탐험 시작하기 <span aria-hidden="true">→</span></button>
         </div>
 
-        <aside class="how-it-works" aria-label="게임 방법">
-          <h2>시간이 흐를수록 힌트가 열려요</h2>
-          <div class="hint-step"><span class="step-number">15</span><div><strong>초성만 보기</strong><p>가장 높은 점수를 얻을 수 있어요.</p></div></div>
-          <div class="hint-step"><span class="step-number">10</span><div><strong>상황 힌트</strong><p>언제 느끼는 마음인지 알려줘요.</p></div></div>
-          <div class="hint-step"><span class="step-number">5</span><div><strong>뜻 힌트</strong><p>단어의 의미까지 보여줘요.</p></div></div>
-          <p class="micro-help">같은 초성은 1단계에서 여러 정답 인정 · Enter 제출 · P 일시정지 · F 전체 화면</p>
-        </aside>
+        <div class="start-aside">
+          <figure class="hero-visual">
+            <img src="./assets/emotion-words-children.png" alt="감정 단어 카드를 들고 마음의 이름을 살펴보는 두 어린이">
+            <figcaption class="hero-caption">오늘 내 마음과 닮은 감정 단어도 찾아볼까요?</figcaption>
+          </figure>
+          <aside class="how-it-works" aria-label="게임 방법">
+            <h2>시간이 흐를수록 생각의 길이 열려요</h2>
+            <div class="hint-step"><span class="step-number">15</span><div><strong>1. 초성 관찰</strong><p>글자의 첫소리를 자세히 살펴봐요.</p></div></div>
+            <div class="hint-step"><span class="step-number">10</span><div><strong>2. 상황 연결</strong><p>언제 느끼는 마음인지 떠올려요.</p></div></div>
+            <div class="hint-step"><span class="step-number">5</span><div><strong>3. 뜻 이해</strong><p>단어의 의미까지 확인해요.</p></div></div>
+            <p class="micro-help">같은 초성은 1단계에서 여러 정답 인정 · Enter 제출 · P 일시정지 · F 전체 화면</p>
+          </aside>
+        </div>
 
         <nav class="quiz-series" aria-label="다른 초성퀴즈">
           <div class="series-head"><div><p>QUIZ SERIES</p><h2>다른 초성퀴즈도 해볼까요?</h2></div><span>하나씩 새롭게 열려요</span></div>
@@ -600,24 +704,25 @@
         <div class="question-progress" aria-hidden="true"><span id="question-progress-bar"></span></div>
 
         <div class="game-body">
+          <div class="activity-ribbon"><span>감정 다이어리 활동 · 마음의 이름을 찾아요</span><span>관찰 → 연결 → 이해 → 표현</span></div>
           <div class="consonant-zone">
-            <p class="question-kicker">이 마음의 이름은 무엇일까요?</p>
+            <p class="question-kicker">초성을 천천히 살펴보세요. 이 마음의 이름은 무엇일까요?</p>
             <div id="consonants" class="consonants" aria-label="초성"></div>
           </div>
 
           <div class="hint-track" aria-hidden="true">
-            <div id="track-1" class="track-item on"><span class="track-dot"></span>초성 · 100점</div>
-            <div id="track-2" class="track-item"><span class="track-dot"></span>상황 · 70점</div>
-            <div id="track-3" class="track-item"><span class="track-dot"></span>뜻 · 40점</div>
+            <div id="track-1" class="track-item on"><span class="track-dot"></span>1. 관찰 · 100점</div>
+            <div id="track-2" class="track-item"><span class="track-dot"></span>2. 상황 연결 · 70점</div>
+            <div id="track-3" class="track-item"><span class="track-dot"></span>3. 뜻 이해 · 40점</div>
           </div>
 
           <div class="hints" aria-live="polite">
             <div id="situation-hint" class="hint-line">
-              <span class="hint-label">상황 힌트</span>
+              <span class="hint-label">2 · 상황 연결</span>
               <span class="hint-text"><span class="locked-copy">10초가 되면 열려요</span></span>
             </div>
             <div id="meaning-hint" class="hint-line">
-              <span class="hint-label">뜻 힌트</span>
+              <span class="hint-label">3 · 뜻 이해</span>
               <span class="hint-text"><span class="locked-copy">5초가 되면 열려요</span></span>
             </div>
           </div>
@@ -652,6 +757,7 @@
           <div class="result-stat"><strong id="best-stat">0</strong><span>나의 최고점</span></div>
           <div class="result-stat"><strong id="early-stat">0</strong><span>초성만 보고 성공</span></div>
         </div>
+        <p class="reflection-note"><strong>마음에는 하나의 정답만 있는 것이 아니에요.</strong><br>같은 상황에서도 사람마다 다른 감정을 느낄 수 있어요. 오늘 발견한 단어로 내 마음을 안전하게 표현해 보세요.</p>
         <div class="result-actions">
           <button id="review-btn" class="secondary-btn" type="button" hidden>복습 문제 다시 풀기</button>
           <button id="retry-btn" class="primary-btn" type="button">한 번 더 하기</button>
