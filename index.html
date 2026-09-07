@@ -807,6 +807,33 @@
       .answer-form { margin-top: 12px; }
     }
 
+    .play-select { margin: 20px 0; }
+    .play-options { display: flex; gap: 10px; margin-top: 8px; }
+    .play-btn { flex: 1; padding: 12px; border: 2px solid var(--line); border-radius: 14px; background: #fffdf8; color: var(--ink); font: inherit; cursor: pointer; }
+    .play-btn[aria-pressed="true"] { border-color: var(--forest); background: #edf4ed; font-weight: 800; }
+    .play-help { margin: 8px 0 0; font-size: 13px; color: var(--muted); }
+    .team-board { margin-bottom: 16px; }
+    .team-board[hidden], .team-results[hidden] { display: none; }
+    .team-turn { margin: 0 0 8px; font-weight: 800; text-align: center; color: var(--forest); }
+    .team-scores { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .team-card { border: 2px solid var(--line); border-radius: 14px; padding: 10px; background: #fffdf8; text-align: center; }
+    .team-card.active { border-color: var(--forest); background: #edf4ed; }
+    .team-card strong { display: block; font-size: 23px; }
+    .team-card small { color: var(--muted); }
+    .hint-actions { gap: 8px; flex-wrap: wrap; }
+    .reveal-btn { border-color: #cd9980; color: #8c4e36; background: #fff5ec; }
+    .hint-btn[hidden] { display: none; }
+    .activity-summary { margin: 22px 0; padding: 18px; border: 1px solid var(--line); border-radius: 18px; background: #fffdf8; text-align: left; }
+    .activity-summary h3 { margin: 0 0 12px; }
+    .summary-counts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .summary-counts span { background: #f4f1e8; border-radius: 10px; padding: 10px; font-size: 14px; }
+    .summary-note { font-size: 13px; color: var(--muted); }
+    .summary-table-wrap { overflow-x: auto; }
+    .summary-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+    .summary-table th, .summary-table td { padding: 9px 5px; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+    .summary-table caption { text-align: left; font-weight: 800; margin: 12px 0; }
+    .activity-summary details { margin-top: 16px; }
+    .activity-summary summary { cursor: pointer; font-weight: 800; }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
     }
@@ -834,6 +861,14 @@
               <button class="mode-btn selected" type="button" data-game-mode="untimed" aria-pressed="true"><strong>차근차근 모드 <span class="mode-badge">기본</span></strong><small>시간초과 없이 힌트를 직접 열고 넘어갈 수 있어요.</small></button>
               <button class="mode-btn" type="button" data-game-mode="timed" aria-pressed="false"><strong>시간 도전 모드</strong><small>15초 동안 자동 힌트를 보며 빠르게 맞혀요.</small></button>
             </div>
+          </div>
+          <div class="play-select" aria-label="참여 방식">
+            <strong>참여 방식</strong>
+            <div class="play-options">
+              <button class="play-btn" type="button" data-play-mode="solo" aria-pressed="true">개인 활동</button>
+              <button class="play-btn" type="button" data-play-mode="teams" aria-pressed="false">팀대항 · A팀 vs B팀</button>
+            </div>
+            <p class="play-help">팀대항은 두 팀이 한 문제씩 번갈아 풀어요. 정답 공개·넘어가기는 0점이에요.</p>
           </div>
           <div class="round-select" aria-label="문제 수 선택">
             <span>문제 수</span>
@@ -895,6 +930,10 @@
 
         <div class="game-body">
           <div class="activity-ribbon"><span>6차시 연장 활동 · 마음의 이름을 찾아요</span><span>관찰 → 상황 연결 → 뜻 이해 → 마음 표현</span></div>
+          <section id="team-board" class="team-board" aria-label="팀별 점수" hidden>
+            <p id="team-turn" class="team-turn" aria-live="polite"></p>
+            <div id="team-scores" class="team-scores"></div>
+          </section>
           <div class="consonant-zone">
             <p class="question-kicker">초성을 천천히 살펴보세요. 이 마음의 이름은 무엇일까요?</p>
             <div id="consonants" class="consonants" aria-label="초성"></div>
@@ -917,7 +956,7 @@
               <span class="hint-text"><span class="locked-copy">5초가 되면 열려요</span></span>
             </div>
           </div>
-          <div class="hint-actions"><button id="hint-btn" class="hint-btn" type="button">상황 힌트 보기</button></div>
+          <div class="hint-actions"><button id="hint-btn" class="hint-btn" type="button">상황 힌트 보기</button><button id="reveal-btn" class="hint-btn reveal-btn" type="button" aria-label="정답 공개, 이 문제는 0점으로 마쳐요">정답 공개 · 0점</button></div>
 
           <form id="answer-form" class="answer-form" autocomplete="off">
             <label class="sr-only" for="answer-input">정답 입력</label>
@@ -947,9 +986,17 @@
         <div class="result-score"><strong id="final-score">0</strong><span>최종 점수</span></div>
         <div class="result-stats">
           <div class="result-stat"><strong id="correct-stat">0 / 10</strong><span>맞힌 문제</span></div>
-          <div class="result-stat"><strong id="best-stat">0</strong><span>나의 최고점</span></div>
+          <div class="result-stat"><strong id="best-stat">0</strong><span id="best-label">나의 최고점</span></div>
           <div class="result-stat"><strong id="early-stat">0</strong><span>초성만 보고 성공</span></div>
         </div>
+        <section id="activity-summary" class="activity-summary" aria-labelledby="summary-title">
+          <h3 id="summary-title">활동 결과 요약</h3>
+          <p id="summary-overview"></p>
+          <div id="summary-counts" class="summary-counts"></div>
+          <div id="team-results" class="team-results summary-table-wrap" hidden></div>
+          <p id="summary-support" class="summary-note"></p>
+          <details><summary>문제별 풀이 기록 보기</summary><div id="summary-records" class="summary-table-wrap"></div></details>
+        </section>
         <p class="reflection-note"><strong>마음에는 하나의 정답만 있는 것이 아니에요.</strong><br>같은 상황에서도 사람마다 다른 감정을 느낄 수 있어요. 오늘 발견한 단어로 내 마음을 안전하게 표현해 보세요.</p>
         <div class="result-actions">
           <button id="review-btn" class="secondary-btn" type="button" hidden>복습 문제 다시 풀기</button>
@@ -1070,12 +1117,17 @@
         "track-1", "track-2", "track-3", "track-4", "answer-form", "answer-entry", "answer-input", "answer-cells", "answer-note", "feedback",
         "hint-btn", "skip-btn", "feedback-mark", "feedback-title", "feedback-copy", "next-btn", "final-score", "correct-stat",
         "best-stat", "early-stat", "retry-btn", "home-btn", "review-btn", "review-section", "review-list",
-        "result-message", "game-canvas", "bank-count", "pause-btn", "pause-layer", "pause-copy", "resume-btn", "question-progress-bar"
+        "result-message", "game-canvas", "bank-count", "pause-btn", "pause-layer", "pause-copy", "resume-btn", "question-progress-bar",
+        "reveal-btn", "team-board", "team-turn", "team-scores", "team-results", "summary-overview", "summary-counts", "summary-support", "summary-records", "result-title", "best-label"
       ].map(id => [id.replaceAll("-", "_"), document.getElementById(id)]));
 
       const state = {
         mode: "start",
         gameMode: "untimed",
+        playMode: "solo",
+        teams: [],
+        activityLog: [],
+        questionTypos: 0,
         count: 20,
         deck: [],
         index: 0,
@@ -1141,6 +1193,31 @@
       }
 
       function currentQuestion() { return state.deck[state.index]; }
+
+      function isTeamGame() { return state.playMode === "teams" && !state.reviewMode; }
+      function activeTeamIndex() { return state.index % 2; }
+      function renderTeamBoard() {
+        els.team_board.hidden = !isTeamGame();
+        if (!isTeamGame()) return;
+        els.team_turn.textContent = state.locked
+          ? `${state.teams[activeTeamIndex()].name}의 도전 완료`
+          : `지금은 ${state.teams[activeTeamIndex()].name} 차례예요`;
+        els.team_scores.innerHTML = state.teams.map((team, i) => `<div class="team-card${i === activeTeamIndex() ? " active" : ""}"><span>${team.name}${i === activeTeamIndex() ? " · 이번 차례" : ""}</span><strong>${team.score}점</strong><small>${team.played}문제 도전 · ${team.correct}개 정답</small></div>`).join("");
+      }
+
+      function renderActivitySummary() {
+        const log = state.activityLog;
+        const count = status => log.filter(row => row.status === status).length;
+        const names = { correct: "맞힘", revealed: "정답 공개", skipped: "넘어감", timeout: "시간초과" };
+        els.summary_overview.textContent = `${isTeamGame() ? "팀대항" : state.reviewMode ? "함께 복습" : "개인 활동"} · ${state.gameMode === "timed" ? "시간 도전" : "차근차근"} · 총 ${log.length}문제`;
+        els.summary_counts.innerHTML = Object.entries(names).map(([key, label]) => `<span>${label} <strong>${count(key)}개</strong></span>`).join("");
+        els.summary_support.textContent = `힌트를 본 문제 ${log.filter(row => row.hintStage > 1).length}개 · 재입력한 문제 ${log.filter(row => row.attempts > 0 || row.typos > 0).length}개 · 맞춤법 안내 ${log.reduce((sum, row) => sum + row.typos, 0)}회`;
+        els.team_results.hidden = !isTeamGame();
+        if (isTeamGame()) {
+          els.team_results.innerHTML = `<table class="summary-table"><caption>팀별 활동 결과</caption><thead><tr><th scope="col">팀</th><th scope="col">도전</th><th scope="col">정답</th><th scope="col">정답 공개</th><th scope="col">점수</th></tr></thead><tbody>${state.teams.map((team, i) => `<tr><th scope="row">${team.name}</th><td>${team.played}개</td><td>${team.correct}개</td><td>${log.filter(row => row.team === i && row.status === "revealed").length}개</td><td>${team.score}점</td></tr>`).join("")}</tbody></table>`;
+        }
+        els.summary_records.innerHTML = `<table class="summary-table"><caption>이번 활동에서 만난 단어</caption><thead><tr><th scope="col">문제</th>${isTeamGame() ? '<th scope="col">팀</th>' : ""}<th scope="col">단어</th><th scope="col">결과</th><th scope="col">점수</th></tr></thead><tbody>${log.map((row, i) => `<tr><td>${i + 1}</td>${isTeamGame() ? `<td>${state.teams[row.team].name}</td>` : ""}<td>${row.answer}${row.acceptedAnswer !== row.answer ? `<br>인정: ${row.acceptedAnswer}` : ""}</td><td>${names[row.status]}</td><td>${row.points}</td></tr>`).join("")}</tbody></table>`;
+      }
 
       function targetLetters() {
         return currentQuestion() ? [...normalize(currentQuestion().answer)] : [];
@@ -1254,6 +1331,8 @@
         state.review = [];
         state.reviewMode = reviewMode;
         state.typoCount = 0;
+        state.activityLog = [];
+        state.teams = ["A팀", "B팀"].map(name => ({ name, score: 0, correct: 0, played: 0 }));
         els.pause_layer.classList.remove("visible");
         els.pause_btn.textContent = "Ⅱ";
         els.question_total.textContent = state.deck.length;
@@ -1272,6 +1351,7 @@
       function loadQuestion() {
         state.elapsed = 0;
         state.attempts = 0;
+        state.questionTypos = 0;
         state.locked = false;
         state.hintStage = 1;
         const q = currentQuestion();
@@ -1294,6 +1374,8 @@
         els.hint_btn.hidden = timed;
         els.hint_btn.textContent = "상황 힌트 보기";
         els.skip_btn.hidden = timed;
+        els.reveal_btn.hidden = false;
+        renderTeamBoard();
         els.situation_hint.classList.remove("visible");
         els.meaning_hint.classList.remove("visible");
         els.situation_hint.querySelector(".hint-text").innerHTML = `<span class="locked-copy">${timed ? "10초가 되면 열려요" : "힌트 버튼을 누르면 열려요"}</span>`;
@@ -1381,6 +1463,7 @@
           const revealMessage = newlyRevealed > 0 ? ` 맞는 자리 ${newlyRevealed}글자는 남겨 두었어요. 빈칸은 다시 맞혀 보세요.` : "";
           if (typoMessage) {
             state.typoCount += 1;
+            state.questionTypos += 1;
             els.answer_note.textContent = typoMessage + revealMessage;
             els.answer_note.dataset.kind = "typo";
             els.answer_input.focus();
@@ -1395,12 +1478,12 @@
         }
       }
 
-      function finishQuestion(correct, timedOut, matchedQuestion = null, skipped = false) {
+      function finishQuestion(correct, timedOut, matchedQuestion = null, skipped = false, revealed = false) {
         if (state.locked) return;
         state.locked = true;
         els.track_4.classList.add("on");
         const q = currentQuestion();
-        if ((timedOut || skipped || state.attempts > 0) && !state.review.includes(q)) state.review.push(q);
+        if ((timedOut || skipped || revealed || state.attempts > 0) && !state.review.includes(q)) state.review.push(q);
         let gained = 0;
         if (correct) {
           gained = pointsForStage();
@@ -1417,6 +1500,12 @@
           }
           els.feedback.className = "feedback visible";
           playTone("correct");
+        } else if (revealed) {
+          els.feedback_mark.textContent = "◎";
+          els.feedback_title.textContent = `정답은 ‘${q.answer}’`;
+          els.feedback_copy.textContent = `${q.meaning} 이 문제는 0점으로 기록했어요.`;
+          els.feedback.className = "feedback visible skipped";
+          playTone("hint");
         } else if (skipped) {
           els.feedback_mark.textContent = "→";
           els.feedback_title.textContent = "이번 문제는 넘어갈게요";
@@ -1430,11 +1519,22 @@
           els.feedback.className = "feedback visible timeout";
           playTone("wrong");
         }
+        state.activityLog.push({ answer: q.answer, acceptedAnswer: matchedQuestion?.answer || q.answer, team: isTeamGame() ? activeTeamIndex() : null, status: correct ? "correct" : revealed ? "revealed" : skipped ? "skipped" : "timeout", points: gained, hintStage: state.hintStage, attempts: state.attempts, typos: state.questionTypos });
+        if (isTeamGame()) {
+          const team = state.teams[activeTeamIndex()];
+          team.played += 1;
+          team.score += gained;
+          if (correct) team.correct += 1;
+        }
+        renderTeamBoard();
+        els.hint_btn.hidden = true;
+        els.reveal_btn.hidden = true;
         els.score_text.textContent = state.score;
         els.answer_input.disabled = true;
         els.answer_form.style.display = "none";
         els.answer_note.textContent = "";
         els.next_btn.textContent = state.index === state.deck.length - 1 ? "결과 보기 →" : "다음 문제 →";
+        if (isTeamGame() && state.index < state.deck.length - 1) els.next_btn.textContent = `다음 문제 · ${state.teams[(state.index + 1) % 2].name} →`;
         requestAnimationFrame(() => els.next_btn.focus());
       }
 
@@ -1455,8 +1555,13 @@
         finishQuestion(false, false, null, true);
       }
 
+      function revealAnswer() {
+        if (state.mode !== "game" || state.locked || state.paused) return;
+        finishQuestion(false, false, null, false, true);
+      }
+
       function showResult() {
-        const storageKey = `emotionInitialQuizBest-${state.gameMode}-${state.deck.length}`;
+        const storageKey = `emotionInitialQuizBest-${state.gameMode}-${state.deck.length}${state.reviewMode ? "-review" : isTeamGame() ? "-teams" : ""}`;
         let previousBest = 0;
         try { previousBest = Number(localStorage.getItem(storageKey)) || 0; } catch (_) {}
         const best = Math.max(previousBest, state.score);
@@ -1465,9 +1570,17 @@
         els.correct_stat.textContent = `${state.correct} / ${state.deck.length}`;
         els.best_stat.textContent = best;
         els.early_stat.textContent = state.early;
+        els.best_label.textContent = isTeamGame() ? "팀 합산 최고점" : state.reviewMode ? "복습 최고점" : "나의 최고점";
+        els.result_title.textContent = state.reviewMode ? "함께 복습 완료!" : "마음 탐험 완료!";
         els.result_message.textContent = state.correct === state.deck.length
           ? "모든 마음의 표현을 찾았어요! 마음 표현 박사님이네요."
           : "마음을 표현하는 말을 알면 내 느낌을 더 잘 이야기할 수 있어요.";
+        if (isTeamGame()) {
+          const [a, b] = state.teams;
+          els.result_title.textContent = a.score === b.score ? "두 팀이 공동 우승했어요!" : `${a.score > b.score ? a.name : b.name}이 우승했어요!`;
+          els.result_message.textContent = `${a.name} ${a.score}점 · ${b.name} ${b.score}점. 두 팀 모두 끝까지 함께했어요!`;
+        }
+        renderActivitySummary();
         els.review_list.innerHTML = state.review.map(q => `<div class="review-item"><strong>${q.initials} · ${q.answer}</strong><span>${q.meaning}</span></div>`).join("");
         els.review_section.hidden = state.review.length === 0;
         els.review_btn.hidden = state.review.length === 0;
@@ -1503,6 +1616,12 @@
           });
         });
       });
+      document.querySelectorAll(".play-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.playMode = btn.dataset.playMode;
+          document.querySelectorAll(".play-btn").forEach(other => other.setAttribute("aria-pressed", String(other === btn)));
+        });
+      });
       document.querySelectorAll(".sound-toggle").forEach(btn => {
         btn.addEventListener("click", () => {
           state.sound = !state.sound;
@@ -1518,6 +1637,7 @@
       els.answer_form.addEventListener("submit", submitAnswer);
       els.hint_btn.addEventListener("click", revealNextHint);
       els.skip_btn.addEventListener("click", skipQuestion);
+      els.reveal_btn.addEventListener("click", revealAnswer);
       els.next_btn.addEventListener("click", nextQuestion);
       els.retry_btn.addEventListener("click", startGame);
       els.review_btn.addEventListener("click", startReview);
@@ -1601,6 +1721,13 @@
         coordinateSystem: state.gameMode === "timed" ? "DOM interface; no positional gameplay. Timer counts down from 15 seconds." : "DOM interface; no positional gameplay. No time limit; hints open manually.",
         mode: state.mode,
         gameMode: state.gameMode,
+        playMode: state.playMode,
+        teamCompetition: isTeamGame(),
+        activeTeam: isTeamGame() && state.mode === "game" ? state.teams[activeTeamIndex()]?.name : null,
+        teams: isTeamGame() ? state.teams : [],
+        completedQuestions: state.activityLog.length,
+        activitySummary: state.mode === "result" ? state.activityLog : null,
+        canRevealAnswer: state.mode === "game" && !state.locked && !state.paused,
         timeLimited: state.gameMode === "timed",
         canSkip: state.mode === "game" && state.gameMode === "untimed" && !state.locked,
         question: state.mode === "game" && currentQuestion() ? {
